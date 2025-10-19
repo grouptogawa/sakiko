@@ -1,0 +1,46 @@
+{
+	"name": "nullbot",
+	"type": "module",
+	"version": "1.0.0",
+	"description": "",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"packageManager": "pnpm@10.18.3",
+	"devDependencies": {
+		"@types/node": "^24.8.1",
+		"eslint": "^9.38.0",
+		"jiti": "^2.6.1",
+		"tsx": "^4.20.6",
+		"typescript": "^5.9.3"
+	},
+	"eslintConfig": {
+		"root": true,
+		"env": {
+			"es2021": true,
+			"node": true,
+			"browser": true
+		},
+		"rules": {
+			"indent": [
+				"error",
+				"tab",
+				{
+					"SwitchCase": 1
+				}
+			],
+			"no-mixed-spaces-and-tabs": [
+				"error",
+				"smart-tabs"
+			]
+		}
+	},
+	"dependencies": {
+		"tslog": "^4.10.2",
+		"zod": "^4.1.12"
+	}
+}
