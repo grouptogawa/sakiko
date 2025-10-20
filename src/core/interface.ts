@@ -1,3 +1,4 @@
+import type { INullBotLogger } from "@/log/interface";
 import { type EventHandler } from "./handler";
 
 /**
@@ -5,18 +6,21 @@ import { type EventHandler } from "./handler";
  * @interface INullBotEvent
  */
 interface INullBotEvent {
-	/** 事件唯一标识符 */
-	id: string;
-	/** 事件发起时间戳 */
-	timestamp: number;
-	/** 事件类型 */
-	type: number;
+	getId(): string;
+
+	getTimestamp(): number;
+
+	getType(): number;
+
+	getProtocol(): string;
 
 	/** 判断事件类型是否匹配
 	 * @param type 事件类型
 	 * @returns 是否匹配
 	 */
-	isType(event: INullBotEvent | number): boolean;
+	isType(target: INullBotEvent | number | number[]): boolean;
+
+	toString(): string;
 }
 
 /** INullBot NullBot的Bot接口，由适配器实现其具体功能
@@ -63,8 +67,8 @@ interface INullBotCallApiResult<TResult = unknown> {
  * @interface IEventBus
  */
 interface INullBotEventBus {
-	/** 获取事件总线类型（名称） */
-	getBusType(): string;
+	/** 获取事件总线名称 */
+	getBusName(): string;
 
 	/**
 	 * 注册事件处理器
@@ -86,11 +90,20 @@ interface INullBotEventBus {
 	publish(event: INullBotEvent): Promise<void>;
 }
 
-interface INullBotAdapter {}
+interface INullBotAdapter {
+	setEventBus(eventBus: INullBotEventBus): void;
+	getAdapterName(): string;
+}
+
+interface INullBotPlugin {
+	getPlginName(): string;
+}
 
 export type {
 	INullBotEvent,
 	INullBot,
 	INullBotCallApiResult,
-	INullBotEventBus as IEventBus,
+	INullBotEventBus,
+	INullBotAdapter,
+	INullBotPlugin,
 };

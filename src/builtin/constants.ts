@@ -1,0 +1,4 @@
+const BUILTIN_ADAPTER_NAME = "built-in";
+const BUILTIN_PROTOCOL_NAME = "built-in";
+
+export { BUILTIN_ADAPTER_NAME, BUILTIN_PROTOCOL_NAME };

@@ -3,7 +3,7 @@ import type { NullBotConfig } from "./config/nullbot-config.js";
 import * as z from "zod";
 import newLogger from "./log/logger";
 import pc from "picocolors";
-import type { IEventBus } from "./core/interface.js";
+import type { INullBotEventBus } from "./core/interface.js";
 import NullBotEventBus from "./bus/bus.js";
 import NullBot from "./core/nullbot.js";
 
@@ -11,7 +11,10 @@ import NullBot from "./core/nullbot.js";
  * @param config 配置项（可选）
  * @param eventBus 事件总线实例（可选）
  */
-function init(config?: Record<string, any>, eventBus?: IEventBus): NullBot {
+function init(
+	config?: Record<string, any>,
+	eventBus?: INullBotEventBus,
+): NullBot {
 	let confParsedFlag = true; // 配置是否成功解析
 	let nullBotConf: Record<string, any>; // 解析后的内置配置部分
 	let zodParsedError: z.ZodError; // 可能产生的异常
@@ -52,14 +55,16 @@ function init(config?: Record<string, any>, eventBus?: IEventBus): NullBot {
 
 	if (!eventBus) {
 		// 如果没有传入事件总线实例，那么初始化一个NullBot内置的事件总线实例
-		eventBus = new NullBotEventBus();
+		eventBus = new NullBotEventBus(logger);
 		logger.debug("未传入事件总线实例，将会初始化内置的事件总线");
 	}
 
-	logger.debug(pc.green(eventBus.getBusType()), "类型的事件总线已被成功载入");
+	logger.debug(pc.green(eventBus.getBusName()), "类型的事件总线已被成功载入");
 
 	// 初始化Bot实例
 	let botInstance = new NullBot(nullBotConf, logger, eventBus);
+
+	// logger.info("NullBot 初始化完成");
 
 	return botInstance;
 }

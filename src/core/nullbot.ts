@@ -1,16 +1,23 @@
 import type { INullBotLogger } from "@/log/interface";
-import type { IEventBus } from "./interface";
+import type {
+	INullBotAdapter,
+	INullBotEventBus,
+	INullBotPlugin,
+} from "./interface";
 import hasGetNamedSubLogger from "@/log/interface";
 
 class NullBot {
 	logger: INullBotLogger;
-	eventBus: IEventBus;
+	eventBus: INullBotEventBus;
 	config: Record<string, any>;
+
+	adapters: Map<string, INullBotAdapter> = new Map();
+	plugins: Map<string, INullBotPlugin> = new Map();
 
 	constructor(
 		conf: Record<string, any>,
 		logger: INullBotLogger,
-		eventBus: IEventBus,
+		eventBus: INullBotEventBus,
 	) {
 		this.config = conf;
 		this.logger = logger;
@@ -27,6 +34,10 @@ class NullBot {
 		}
 		return this.logger.getNamedSubLogger(name); // 返回具有指定名称的子日志记录器
 	}
+
+	addAdapter(adapter: INullBotAdapter): void {}
+
+	addPlugin(plugin: INullBotPlugin): void {}
 }
 
 export default NullBot;

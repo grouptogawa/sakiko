@@ -1,16 +1,23 @@
+import type { INullBotLogger } from "@/log/interface";
 import { type EventHandler } from "../core/handler";
-import { type INullBotEvent, type IEventBus } from "../core/interface";
+import { type INullBotEvent, type INullBotEventBus } from "../core/interface";
 
 /** NullBotEventBus 事件总线实现类
  * 负责管理事件处理器的注册、注销以及事件的发布与分发
  */
-class NullBotEventBus implements IEventBus {
+class NullBotEventBus implements INullBotEventBus {
 	/** 一个事件处理器映射 */
 	private eventHandlerMap: Map<number, EventHandler[]> = new Map();
 	/** 已注册的优先级列表，按降序排列 */
 	private priorities: number[] = [];
+	/** 日志记录器 */
+	private logger: INullBotLogger;
 
-	getBusType(): string {
+	constructor(logger: INullBotLogger) {
+		this.logger = logger;
+	}
+
+	getBusName(): string {
 		return "Built-in";
 	}
 
@@ -65,6 +72,7 @@ class NullBotEventBus implements IEventBus {
 	async publish(event: INullBotEvent): Promise<void> {
 		// 遍历所有优先级
 		for (const priority of this.priorities) {
+			this.logger.debug(`正在检查优先级 ${priority} 下的事件处理器...`);
 			const handlers = this.eventHandlerMap.get(priority); // 获取该优先级下的处理器列表
 			if (!handlers) {
 				// 如果没有处理器，跳过这个优先级并从已注册的优先级中删除这一优先级
@@ -92,6 +100,7 @@ class NullBotEventBus implements IEventBus {
 				if (handlers[i]?.block && results[i]) return; // 如果处理器设置了阻塞且返回true，则停止继续处理事件
 			}
 		}
+		this.logger.debug("所有优先级上的事件处理器已检查完毕");
 	}
 }
 
