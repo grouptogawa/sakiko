@@ -36,10 +36,26 @@
 			"no-mixed-spaces-and-tabs": [
 				"error",
 				"smart-tabs"
+			],
+			"sort-imports": [
+				"error",
+				{
+					"ignoreCase": false,
+					"ignoreDeclarationSort": false,
+					"ignoreMemberSort": false,
+					"memberSyntaxSortOrder": [
+						"none",
+						"all",
+						"multiple",
+						"single"
+					],
+					"allowSeparatedGroups": false
+				}
 			]
 		}
 	},
 	"dependencies": {
+		"picocolors": "^1.1.1",
 		"tslog": "^4.10.2",
 		"zod": "^4.1.12"
 	}

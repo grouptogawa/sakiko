@@ -2,8 +2,8 @@
 	// Visit https://aka.ms/tsconfig to read more about this file
 	"compilerOptions": {
 		// File Layout
-		// "rootDir": "./src",
-		// "outDir": "./dist",
+		"rootDir": "./src",
+		"outDir": "./dist",
 		"baseUrl": "./", // 项目根目录
 		"paths": {
 			"@/*": ["src/*"],
@@ -49,6 +49,13 @@
 		"moduleDetection": "force",
 		"skipLibCheck": true
 	},
+	"include": ["src/**/*"],
+	"exclude": [
+		"node_modules",
+		"dist",
+		"test/**/*",
+		"./testing/*.ts" // 排除根目录的 .ts 文件
+	],
 	"exports": {
 		".": {
 			"import": "./dist/index.mjs",

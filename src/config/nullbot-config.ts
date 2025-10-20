@@ -12,8 +12,15 @@ const NullBotConfigSchema = z.object({
 	apiTimeout: z.number().min(1).optional().default(30),
 	/** 设置日志记录器的输出等级（仅在使用内置的日志记录器时有效） */
 	logLevel: z.int().optional().default(3),
-	/** 是否启用日志记录器的美观输出，这会使控制台的输出内容更加可读，但是会一定程度上增大性能开销（绝大多数情况下这点开销不会产生什么影响） （仅在使用内置的日志记录器时有效） */
-	usePrettyLogger: z.boolean().optional().default(true),
+	/** 是否启用日志记录器的美观输出，这会使控制台的输出内容更加可读，但是会一定程度上增大性能开销（绝大多数情况下这点开销不会产生什么影响）（仅在使用内置的日志记录器时有效） */
+	enablePrettyLogger: z.boolean().optional().default(true),
+	/** 是否启用控制台输出，如果禁用会使控制台不再输出日志，但是不会影响日志记录器本身的输出（仅在使用内置的日志记录器时有效） */
+	enableConsoleLogger: z.boolean().optional().default(true),
+	/** 是否启用源码路径日志记录，这会使日志记录器在输出日志时包含源码的路径信息（仅在使用内置的日志记录器时有效） */
+	enablePathLogging: z.boolean().optional().default(false),
 });
+
+export type NullBotConfig = Partial<z.infer<typeof NullBotConfigSchema>> &
+	Record<string, any>;
 
 export default NullBotConfigSchema;

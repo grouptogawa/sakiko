@@ -62,7 +62,10 @@ interface INullBotCallApiResult<TResult = unknown> {
 /** 事件总线接口定义
  * @interface IEventBus
  */
-interface IEventBus {
+interface INullBotEventBus {
+	/** 获取事件总线类型（名称） */
+	getBusType(): string;
+
 	/**
 	 * 注册事件处理器
 	 * @param handler 事件处理器
@@ -83,4 +86,11 @@ interface IEventBus {
 	publish(event: INullBotEvent): Promise<void>;
 }
 
-export type { INullBotEvent, INullBot, INullBotCallApiResult, IEventBus };
+interface INullBotAdapter {}
+
+export type {
+	INullBotEvent,
+	INullBot,
+	INullBotCallApiResult,
+	INullBotEventBus as IEventBus,
+};

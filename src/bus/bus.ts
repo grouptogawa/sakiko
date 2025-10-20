@@ -10,6 +10,10 @@ class NullBotEventBus implements IEventBus {
 	/** 已注册的优先级列表，按降序排列 */
 	private priorities: number[] = [];
 
+	getBusType(): string {
+		return "Built-in";
+	}
+
 	/** 注册事件处理器到事件总线上
 	 *
 	 * @param handler 事件处理器
