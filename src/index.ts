@@ -69,7 +69,7 @@ export function init(
 }
 
 export * from "@/core/interface";
-export * from "@/framework/sakiko";
+export * from "@/core/event";
 export * from "@/core/adapter";
 export * from "@/core/handler";
 export * from "@/core/plugin";
