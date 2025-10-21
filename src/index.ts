@@ -1,10 +1,10 @@
-import { SakikoConfigSchema } from "./config/sakiko-config";
+import { SakikoConfigSchema } from "@/config/sakiko-config";
 import * as z from "zod";
-import { newLogger } from "./log/logger";
+import { newLogger } from "@/log/logger";
 import pc from "picocolors";
-import { SakikoEventBus } from "./bus/bus";
-import { Sakiko } from "./core/sakiko";
-import type { ISakikoEventBus } from "./core/interface";
+import { SakikoEventBus } from "@/bus/bus";
+import { Sakiko } from "@/framework/sakiko";
+import type { ISakikoEventBus } from "@/core/interface";
 
 /** Sakiko的初始化入口
  * @param config 配置项（可选）
@@ -60,23 +60,24 @@ export function init(
 
 	logger.debug(pc.green(eventBus.getBusName()), "类型的事件总线已被成功载入");
 
-	// 初始化Bot实例
-	let botInstance = new Sakiko(SakikoConf, logger, eventBus);
+	// 初始化框架实例
+	let framework = new Sakiko(SakikoConf, logger, eventBus);
 
 	// logger.info("Sakiko 初始化完成");
 
-	return botInstance;
+	return framework;
 }
 
-export * from "./core/interface";
-export * from "./core/sakiko";
-export * from "./core/adapter";
-export * from "./core/handler";
-export * from "./core/plugin";
-export * from "./log/interface";
-export * from "./log/logger";
-export * from "./bus/bus";
-export * from "./config/sakiko-config";
-export * from "./config/merger";
-export * from "./utils/snowflake";
-export * from "./error/errors";
+export * from "@/core/interface";
+export * from "@/framework/sakiko";
+export * from "@/core/adapter";
+export * from "@/core/handler";
+export * from "@/core/plugin";
+export * from "@/log/interface";
+export * from "@/log/logger";
+export * from "@/bus/bus";
+export * from "@/config/sakiko-config";
+export * from "@/config/merger";
+export * from "@/utils/snowflake";
+export * from "@/error/errors";
+export * from "@/framework/sakiko";

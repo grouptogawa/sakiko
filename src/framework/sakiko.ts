@@ -3,7 +3,7 @@ import type {
 	ISakikoAdapter,
 	ISakikoEventBus,
 	ISakikoPlugin,
-} from "./interface";
+} from "@/core/interface";
 import { hasGetNamedSubLogger } from "@/log/interface";
 
 export class Sakiko {

@@ -1,5 +1,6 @@
 import type { ISakikoLogger } from "@/log/interface";
 import { type EventHandler } from "./handler";
+import type { Sakiko } from "@/framework/sakiko";
 
 /**
  * ISakikoEvent Sakiko使用的事件接口，实现该接口的数据都可以在事件总线上传递
@@ -91,8 +92,16 @@ export interface ISakikoEventBus {
 }
 
 export interface ISakikoAdapter {
-	setEventBus(eventBus: ISakikoEventBus): void;
 	getAdapterName(): string;
+	getAdapterVersion(): string;
+	getProtocolName(): string;
+
+	init(framework: Sakiko): void | Promise<void>;
+	start(): void | Promise<void>;
+	setLogger(logger: ISakikoLogger): void;
+	getLogger(): ISakikoLogger;
+	getEventBus(): ISakikoEventBus;
+	setEventBus(eventBus: ISakikoEventBus): void;
 }
 
 export interface ISakikoPlugin {
