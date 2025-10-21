@@ -1,13 +1,13 @@
 import { Logger, type ILogObj } from "tslog";
-import type { INullBotLogger } from "./interface";
+import type { ISakikoLogger } from "./interface";
 
-class ExtendedTSLogger extends Logger<ILogObj> implements INullBotLogger {
-	getNamedSubLogger(name: string): INullBotLogger {
+class ExtendedTSLogger extends Logger<ILogObj> implements ISakikoLogger {
+	getNamedSubLogger(name: string): ISakikoLogger {
 		return this.getSubLogger({ name: name });
 	}
 }
 
-function newLogger(conf: Record<string, any>): INullBotLogger {
+function newLogger(conf: Record<string, any>): ISakikoLogger {
 	// 如果没有读取到配置项则自动Fallback
 	let logLevel: number = conf["logLevel"] ?? 3;
 	let enbalePrettyLogger: boolean = conf["enablePrettyLogger"] ?? true;
@@ -31,7 +31,7 @@ function newLogger(conf: Record<string, any>): INullBotLogger {
 				6: "FATAL",
 			};
 			logger = new Logger({
-				name: "nullbot",
+				name: "sakiko",
 				type: "pretty",
 				minLevel: logLevel,
 				prettyLogTemplate: `{{mm}}.{{dd}} {{hh}}:{{MM}}:{{ss}} [{{logLevelName}}]${enablePathLogging ? " [{{filePathWithLine}}]" : ""} [{{name}}] `,

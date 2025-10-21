@@ -1,17 +1,17 @@
-import type { INullBotAdapter, INullBotEventBus } from "./interface";
+import type { ISakikoAdapter, ISakikoEventBus } from "./interface";
 
-abstract class NullBotAdapter implements INullBotAdapter {
-	private eventBus: INullBotEventBus;
+abstract class SakikoAdapter implements ISakikoAdapter {
+	private eventBus: ISakikoEventBus;
 
-	constructor(eventBus: INullBotEventBus) {
+	constructor(eventBus: ISakikoEventBus) {
 		this.eventBus = eventBus;
 	}
 
 	abstract getAdapterName(): string;
 
-	setEventBus(eventBus: INullBotEventBus): void {
+	setEventBus(eventBus: ISakikoEventBus): void {
 		this.eventBus = eventBus;
 	}
 }
 
-export default NullBotAdapter;
+export default SakikoAdapter;

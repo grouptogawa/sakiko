@@ -1,7 +1,7 @@
 import { snowflakeIdBase36 } from "@/utils/snowflake";
-import type { INullBotEvent } from "./interface";
+import type { ISakikoEvent } from "./interface";
 
-abstract class NullBotEvent implements INullBotEvent {
+abstract class SakikoEvent implements ISakikoEvent {
 	private id: string = snowflakeIdBase36();
 	private timestamp: number = Date.now();
 
@@ -17,7 +17,7 @@ abstract class NullBotEvent implements INullBotEvent {
 
 	abstract getProtocol(): string;
 
-	isType(target: INullBotEvent | number | number[]): boolean {
+	isType(target: ISakikoEvent | number | number[]): boolean {
 		let result = false;
 		if (typeof target === "number") {
 			// 传入的参数是整数
@@ -26,7 +26,7 @@ abstract class NullBotEvent implements INullBotEvent {
 			// 传入的参数是整数数组
 			result = target.includes(this.getType());
 		} else {
-			// 传入的参数是实现了INullBotEvent接口的实例
+			// 传入的参数是实现了ISakikoEvent接口的实例
 			result = this.getType() === target.getType();
 		}
 		return result;
@@ -35,4 +35,4 @@ abstract class NullBotEvent implements INullBotEvent {
 	abstract toString(): string;
 }
 
-export default NullBotEvent;
+export default SakikoEvent;

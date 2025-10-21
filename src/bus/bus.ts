@@ -1,19 +1,19 @@
-import type { INullBotLogger } from "@/log/interface";
+import type { ISakikoLogger } from "@/log/interface";
 import { type EventHandler } from "../core/handler";
-import { type INullBotEvent, type INullBotEventBus } from "../core/interface";
+import { type ISakikoEvent, type ISakikoEventBus } from "../core/interface";
 
-/** NullBotEventBus 事件总线实现类
+/** SakikoEventBus 事件总线实现类
  * 负责管理事件处理器的注册、注销以及事件的发布与分发
  */
-class NullBotEventBus implements INullBotEventBus {
+class SakikoEventBus implements ISakikoEventBus {
 	/** 一个事件处理器映射 */
 	private eventHandlerMap: Map<number, EventHandler[]> = new Map();
 	/** 已注册的优先级列表，按降序排列 */
 	private priorities: number[] = [];
 	/** 日志记录器 */
-	private logger: INullBotLogger;
+	private logger: ISakikoLogger;
 
-	constructor(logger: INullBotLogger) {
+	constructor(logger: ISakikoLogger) {
 		this.logger = logger;
 	}
 
@@ -69,7 +69,7 @@ class NullBotEventBus implements INullBotEventBus {
 	 *
 	 * @param event 事件对象
 	 */
-	async publish(event: INullBotEvent): Promise<void> {
+	async publish(event: ISakikoEvent): Promise<void> {
 		// 遍历所有优先级
 		for (const priority of this.priorities) {
 			this.logger.debug(`正在检查优先级 ${priority} 下的事件处理器...`);
@@ -104,4 +104,4 @@ class NullBotEventBus implements INullBotEventBus {
 	}
 }
 
-export default NullBotEventBus; // 导出事件总线类
+export default SakikoEventBus; // 导出事件总线类

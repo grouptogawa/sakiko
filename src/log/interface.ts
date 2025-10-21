@@ -1,11 +1,11 @@
-interface INullBotLogger {
+interface ISakikoLogger {
 	trace(...args: any): void;
 	debug(...args: any): void;
 	info(...args: any): void;
 	warn(...args: any): void;
 	error(...args: any): void;
 	fatal(...args: any): void;
-	getNamedSubLogger?(name: string): INullBotLogger;
+	getNamedSubLogger?(name: string): ISakikoLogger;
 }
 
 /** hasGetNamedSubLogger 类型守卫函数，检测实例是否实现了接口中的getNamedSubLogger方法
@@ -14,12 +14,12 @@ interface INullBotLogger {
  * @returns
  */
 function hasGetNamedSubLogger(
-	logger: INullBotLogger,
-): logger is INullBotLogger & {
-	getNamedSubLogger: (name: string) => INullBotLogger;
+	logger: ISakikoLogger,
+): logger is ISakikoLogger & {
+	getNamedSubLogger: (name: string) => ISakikoLogger;
 } {
 	return typeof logger.getNamedSubLogger === "function";
 }
 
-export type { INullBotLogger };
+export type { ISakikoLogger };
 export default hasGetNamedSubLogger;

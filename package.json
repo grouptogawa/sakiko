@@ -1,20 +1,49 @@
 {
-	"name": "nullbot",
+	"name": "@togawa-group/sakiko",
 	"type": "module",
-	"version": "1.0.0",
-	"description": "",
-	"main": "index.js",
-	"scripts": {
-		"test": "echo \"Error: no test specified\" && exit 1"
+	"version": "0.1.0",
+	"description": "A lightweight TypeScript chatbot framework.",
+	"main": "dist/index.cjs",
+	"module": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"exports": {
+		".": {
+			"import": "./dist/index.js",
+			"require": "./dist/index.cjs",
+			"types": "./dist/index.d.ts"
+		},
+		"./package.json": "./package.json"
 	},
-	"keywords": [],
-	"author": "",
-	"license": "ISC",
+	"files": [
+		"dist",
+		"README.md",
+		"LICENSE"
+	],
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/GroupTogawa/sakiko.git"
+	},
+	"scripts": {
+		"build": "tsup src/index.ts --format esm,cjs --dts --out-dir dist --sourcemap --clean",
+		"prepublishOnly": "npm run build"
+	},
+	"publishConfig": {
+		"access": "public"
+	},
+	"keywords": [
+		"chatbot",
+		"framework",
+		"bot",
+		"sdk"
+	],
+	"author": "GroupTogawa",
+	"license": "MIT",
 	"packageManager": "pnpm@10.18.3",
 	"devDependencies": {
-		"@types/node": "^24.8.1",
+		"@types/node": "^22.7.5",
 		"eslint": "^9.38.0",
 		"jiti": "^2.6.1",
+		"tsup": "^8.5.0",
 		"tsx": "^4.20.6",
 		"typescript": "^5.9.3"
 	},
