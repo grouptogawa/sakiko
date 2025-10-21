@@ -104,4 +104,4 @@ class SakikoEventBus implements ISakikoEventBus {
 	}
 }
 
-export default SakikoEventBus; // 导出事件总线类
+export { SakikoEventBus }; // 导出事件总线类

@@ -74,3 +74,4 @@ function newLogger(conf: Record<string, any>): ISakikoLogger {
 }
 
 export default newLogger;
+export { ExtendedTSLogger };

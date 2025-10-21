@@ -1,11 +1,26 @@
 import SakikoConfigSchema from "./config/sakiko-config";
 import type { SakikoConfig } from "./config/sakiko-config";
+import type { ISakikoLogger } from "./log/interface";
+import hasGetNamedSubLogger from "./log/interface";
 import * as z from "zod";
 import newLogger from "./log/logger";
+import ExtendedTSLogger from "./log/logger";
 import pc from "picocolors";
-import type { ISakikoEventBus } from "./core/interface";
-import SakikoEventBus from "./bus/bus";
+import { SakikoEventBus } from "./bus/bus";
 import Sakiko from "./core/sakiko";
+import type {
+	ISakikoEvent,
+	ISakikoBot,
+	ISakikoCallApiResult,
+	ISakikoAdapter,
+	ISakikoEventBus,
+	ISakikoPlugin,
+} from "./core/interface";
+
+import SakikoAdapter from "./core/adapter";
+import SakikoEvent from "./core/event";
+import type { EventHandler } from "./core/handler";
+import { snowflakeIdBase36, snowflakeIdBase36Unsafe } from "./utils/snowflake";
 
 /** Sakiko的初始化入口
  * @param config 配置项（可选）
@@ -71,4 +86,19 @@ function init(
 
 // 导出
 export { init };
-export { SakikoConfigSchema, type SakikoConfig };
+export { type ISakikoLogger, hasGetNamedSubLogger, ExtendedTSLogger }; // log
+export { SakikoConfigSchema, type SakikoConfig }; // config
+export {
+	Sakiko,
+	type ISakikoEvent,
+	type ISakikoBot,
+	type ISakikoCallApiResult,
+	type ISakikoAdapter,
+	type ISakikoEventBus,
+	type ISakikoPlugin,
+	SakikoAdapter,
+	SakikoEvent,
+	type EventHandler,
+}; // core
+export { SakikoEventBus }; // bus
+export { snowflakeIdBase36, snowflakeIdBase36Unsafe }; // utils

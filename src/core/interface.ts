@@ -23,10 +23,10 @@ interface ISakikoEvent {
 	toString(): string;
 }
 
-/** ISakiko Sakiko的Bot接口，由适配器实现其具体功能
+/** ISakikoBot Sakiko的Bot接口，由适配器实现其具体功能
  * @interface ISakiko
  */
-interface ISakiko {
+interface ISakikoBot {
 	/** 获取当前Bot自身的Id */
 	getSelfId(): string | null;
 	/** 获取当前Bot所使用的协议名称 */
@@ -101,7 +101,7 @@ interface ISakikoPlugin {
 
 export type {
 	ISakikoEvent,
-	ISakiko,
+	ISakikoBot,
 	ISakikoCallApiResult,
 	ISakikoEventBus,
 	ISakikoAdapter,
