@@ -46,6 +46,9 @@ export class Sakiko {
 	getConfigSafely<T>(key: string, defaultValue: T): T {
 		const value = this.config[key];
 		if (value === undefined || value === null) {
+			this.logger.debug(
+				`获取配置项 ${key} 失败，将使用默认值 ${defaultValue} 替代`,
+			);
 			return defaultValue;
 		}
 		return value as T;

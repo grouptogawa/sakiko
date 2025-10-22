@@ -11,15 +11,15 @@ export interface ISakikoEvent {
 
 	getTimestamp(): number;
 
-	getType(): number;
-
 	getProtocol(): string;
 
-	/** 判断事件类型是否匹配
-	 * @param type 事件类型
-	 * @returns 是否匹配
-	 */
-	isType(target: ISakikoEvent | number | number[]): boolean;
+	getSenderId(): string;
+
+	getSelfId(): string;
+
+	getTypes(): number[];
+
+	isType(target: number | number[]): boolean;
 
 	toString(): string;
 }
