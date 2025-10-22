@@ -3,17 +3,22 @@ import type { ISakikoEvent } from "./interface";
 
 export abstract class SakikoEvent implements ISakikoEvent {
 	private id: string = snowflakeIdBase36();
-	private timestamp: number = Date.now();
+	private createTime: number = Date.now();
+
+	static protocol: string = "";
+	static types: number[] = [];
+
 	senderId: string = "";
 	selfId: string = "";
-	types: number[] = [];
+
+	abstract getTypes(): number[];
 
 	getId(): string {
 		return this.id;
 	}
 
-	getTimestamp(): number {
-		return this.timestamp;
+	getCreateTime(): number {
+		return this.createTime;
 	}
 
 	getProtocol(): string {
@@ -26,14 +31,6 @@ export abstract class SakikoEvent implements ISakikoEvent {
 
 	getSelfId(): string {
 		return this.selfId;
-	}
-
-	getTypes(): number[] {
-		return this.types;
-	}
-
-	isType(target: number | number[]): boolean {
-		return true;
 	}
 
 	toString(): string {

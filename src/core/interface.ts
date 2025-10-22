@@ -9,17 +9,13 @@ import type { Sakiko } from "@/framework/sakiko";
 export interface ISakikoEvent {
 	getId(): string;
 
-	getTimestamp(): number;
+	getCreateTime(): number;
 
 	getProtocol(): string;
 
 	getSenderId(): string;
 
 	getSelfId(): string;
-
-	getTypes(): number[];
-
-	isType(target: number | number[]): boolean;
 
 	toString(): string;
 }
