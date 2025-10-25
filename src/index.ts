@@ -6,12 +6,12 @@ import { SakikoEventBus } from "@/bus/bus";
 import { Sakiko } from "@/framework/sakiko";
 import type { ISakikoEventBus } from "@/core/interface";
 
-/** Sakiko的初始化入口
+/** Sakiko的初始化入口，允许传入自定义的事件总线实例
  * @param config 配置项（可选）
  * @param eventBus 事件总线实例（可选）
  */
-export function initSakiko(
-	eventBus?: ISakikoEventBus,
+export function initSakikoWithCustomEventBus(
+	eventBus: ISakikoEventBus | null,
 	...config: Record<string, any>[]
 ): Sakiko {
 	let confParsedFlag = true; // 配置是否成功解析
@@ -60,7 +60,6 @@ export function initSakiko(
 	if (!eventBus) {
 		// 如果没有传入事件总线实例，那么初始化一个Sakiko内置的事件总线实例
 		eventBus = new SakikoEventBus(logger);
-		logger.debug("未传入事件总线实例，将会初始化内置的事件总线");
 	}
 
 	logger.debug(pc.green(eventBus.getBusName()), "类型的事件总线已被成功载入");
@@ -71,6 +70,13 @@ export function initSakiko(
 	// logger.info("Sakiko 初始化完成");
 
 	return framework;
+}
+
+/** Sakiko的初始化入口
+ * @param config 配置项（可选）
+ */
+export function initSakiko(...config: Record<string, any>[]): Sakiko {
+	return initSakikoWithCustomEventBus(null, ...config);
 }
 
 export * from "@/core/interface";
