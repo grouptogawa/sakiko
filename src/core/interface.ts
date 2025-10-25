@@ -99,6 +99,7 @@ export interface ISakikoAdapter {
 	getExtraConfigSchema(): ZodObject;
 
 	init(framework: Sakiko): void | Promise<void>;
+	stop(): void | Promise<void>;
 	start(): void | Promise<void>;
 	setLogger(logger: ISakikoLogger): void;
 	getLogger(): ISakikoLogger;

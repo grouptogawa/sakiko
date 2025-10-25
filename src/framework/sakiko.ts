@@ -51,11 +51,11 @@ export class Sakiko {
 		if (adapter.getExtraConfigSchema()) {
 			this.extraSchemas.push(adapter.getExtraConfigSchema());
 			this.logger.debug(
-				`适配器 ${adapter.getAdapterName()} 提供的配置项已被注册到 Sakiko 中`,
+				`适配器 ${picocolors.green(adapter.getAdapterName())} 的配置项已被注册到 Sakiko 中`,
 			);
 		}
 		this.logger.info(
-			`协议类型 ${adapter.getProtocolName()} 的适配器 ${adapter.getAdapterName()}${adapter.getAdapterVersion()} 已被注册到 Sakiko 中`,
+			`适配器 ${picocolors.green(adapter.getAdapterName())}@${picocolors.blue(adapter.getAdapterVersion())} 已被注册到 Sakiko 中，协议类型为 ${picocolors.yellow(adapter.getProtocolName())}`,
 		);
 	}
 
@@ -96,7 +96,7 @@ export class Sakiko {
 				const parsedConfig = mergedSchema.parse(this.rawConfig);
 				// 校验成功，更新配置项
 				this.config = parsedConfig;
-				this.logger.info("合并后的配置项校验完成");
+				this.logger.debug("合并后的配置项校验完成");
 			} catch (e) {
 				if (e instanceof ZodError) {
 					this.logger.error("配置项校验失败，详情如下：");
@@ -116,12 +116,18 @@ export class Sakiko {
 		// 开始进行启动流程
 		// 首先初始化所有适配器
 		for (const [name, adapter] of this.adapters) {
-			this.logger.debug(`开始初始化适配器 ${name} ...`);
+			this.logger.debug(`开始加载适配器 ${picocolors.green(name)} ...`);
 			try {
 				adapter.init(this);
-				this.logger.info(picocolors.green(`适配器 ${name} 已加载`));
+				adapter.start();
+				this.logger.info(
+					picocolors.green(`适配器 ${picocolors.green(name)} 已加载`),
+				);
 			} catch (e) {
-				this.logger.error(`适配器 ${name} 初始化失败：`, e);
+				this.logger.error(
+					`适配器 ${picocolors.green(name)} 加载失败：`,
+					e,
+				);
 			}
 		}
 	}

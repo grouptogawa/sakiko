@@ -22,6 +22,8 @@ export abstract class SakikoAdapter implements ISakikoAdapter {
 
 	abstract init(framework: Sakiko): void | Promise<void>;
 
+	abstract stop(): void | Promise<void>;
+
 	abstract start(): void | Promise<void>;
 
 	getEventBus(): ISakikoEventBus {
