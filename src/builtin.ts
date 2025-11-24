@@ -1,9 +1,8 @@
 import type { Sakiko } from ".";
 
-export abstract class BaseSakikoEvent {
+export abstract class SakikoBaseEvent {
   eventId: string;
   nodeId: number;
-  time: number = Date.now();
 
   abstract selfId: string;
 
@@ -13,13 +12,13 @@ export abstract class BaseSakikoEvent {
   }
 }
 
-export abstract class SakikoMetaEvent extends BaseSakikoEvent {
+export abstract class SakikoMetaEvent extends SakikoBaseEvent {
   constructor(framework: Sakiko) {
     super(framework);
   }
 }
 
-export abstract class SakikoMessageEvent extends BaseSakikoEvent {
+export abstract class SakikoMessageEvent extends SakikoBaseEvent {
   abstract getPlainText(): string;
   abstract isMentioned(): boolean;
 
@@ -28,7 +27,7 @@ export abstract class SakikoMessageEvent extends BaseSakikoEvent {
   }
 }
 
-export abstract class SakikoNoticeEvent extends BaseSakikoEvent {
+export abstract class SakikoNoticeEvent extends SakikoBaseEvent {
   constructor(framework: Sakiko) {
     super(framework);
   }
