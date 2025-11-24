@@ -1,94 +1,183 @@
-import { SakikoConfigSchema } from "@/config/sakiko-config";
-import * as z from "zod";
-import { newLogger } from "@/log/logger";
-import pc from "picocolors";
-import { SakikoEventBus } from "@/bus/bus";
-import { Sakiko } from "@/framework/sakiko";
-import type { ISakikoEventBus } from "@/core/interface";
+import type { SakikoAdapter } from "@/adapter";
+import { type IEventBus, Umiri } from "@/bus";
+import type { ILogger } from "@/logger";
+import { SnowFlake, type SnowFlakeOptions } from "@/utils";
 
-/** Sakiko的初始化入口，允许传入自定义的事件总线实例
- * @param config 配置项（可选）
- * @param eventBus 事件总线实例（可选）
- */
-export function initSakikoWithCustomEventBus(
-	eventBus: ISakikoEventBus | null,
-	...config: Record<string, any>[]
-): Sakiko {
-	let confParsedFlag = true; // 配置是否成功解析
-	let SakikoConf: Record<string, any> = {}; // 解析后的内置配置部分
-	let mergedConfig: Record<string, any> = {}; // 合并后的配置项
-	let zodParsedError: z.ZodError; // 可能产生的异常
-
-	if (config) {
-		// 合并所有传入的配置项
-		for (let confPart of config) {
-			mergedConfig = { ...mergedConfig, ...confPart };
-		}
-		// 第一遍配置解析，只解析Sakiko预置的配置结构
-		try {
-			SakikoConf = SakikoConfigSchema.parse(mergedConfig);
-		} catch (e) {
-			confParsedFlag = false;
-			if (e instanceof z.ZodError) {
-				// 配置解析失败，使用默认值替代
-				zodParsedError = e;
-				SakikoConf = SakikoConfigSchema.parse({});
-			} else {
-				throw e;
-			}
-		}
-	} else {
-		// 没有传入任何配置，使用默认配置项
-		SakikoConf = SakikoConfigSchema.parse({});
-	}
-
-	// 基于配置项初始化日志记录器
-	let logger = newLogger(SakikoConf);
-
-	if (!confParsedFlag) {
-		logger.error(
-			pc.red("读取机器人配置时遇到错误，将使用默认的机器人配置"),
-			zodParsedError!,
-		);
-	}
-	logger.debug(pc.green("机器人配置已加载"), JSON.stringify(SakikoConf));
-
-	logger.info("正在初始化 Sakiko...");
-
-	// 事件总线的初始化流程
-
-	if (!eventBus) {
-		// 如果没有传入事件总线实例，那么初始化一个Sakiko内置的事件总线实例
-		eventBus = new SakikoEventBus(logger);
-	}
-
-	logger.debug(pc.green(eventBus.getBusName()), "类型的事件总线已被成功载入");
-
-	// 初始化框架实例
-	let framework = new Sakiko(SakikoConf, mergedConfig, logger, eventBus);
-
-	// logger.info("Sakiko 初始化完成");
-
-	return framework;
+// Sakiko 的配置选项接口定义
+// The interface definition of Sakiko configuration options
+interface SakikoOptions {
+  logger?: ILogger;
+  bus?: IEventBus;
+  nodeId?: number;
+  sfOptions?: SnowFlakeOptions;
 }
 
-/** Sakiko的初始化入口
- * @param config 配置项（可选）
+/**
+ * # Sakiko
+ *
+ * 一个轻量级的事件驱动通信框架，为聊天机器人应用提供简洁高效的 API 和快速开发体验
+ *
+ * A lightweight event-driven communication framework that provides a simple and efficient API and rapid development experience for chatbot applications
  */
-export function initSakiko(...config: Record<string, any>[]): Sakiko {
-	return initSakikoWithCustomEventBus(null, ...config);
+export class Sakiko {
+  private logger: ILogger;
+  private bus: IEventBus;
+  private nodeId: number;
+  private snowflake: SnowFlake;
+
+  private adapters: SakikoAdapter[] = [];
+
+  constructor(options?: SakikoOptions) {
+    this.logger = options?.logger || console;
+    this.bus = options?.bus || new Umiri(this.logger);
+    this.nodeId = options?.nodeId || 1;
+    this.snowflake = new SnowFlake(this.nodeId, options?.sfOptions);
+  }
+
+  static init(options?: SakikoOptions): Sakiko {
+    return new Sakiko(options);
+  }
+
+  /**
+   * 输出一条 trace 级别的日志
+   *
+   * Output a trace level log
+   * @param args 要输出的日志内容 The content of the log to be output
+   */
+  trace(...args: any[]): void {
+    this.logger.trace(...args);
+  }
+
+  /**
+   * 输出一条 debug 级别的日志
+   *
+   * Output a debug level log
+   * @param args 要输出的日志内容 The content of the log to be output
+   */
+  debug(...args: any[]): void {
+    this.logger.debug(...args);
+  }
+
+  /**
+   * 输出一条 info 级别的日志
+   *
+   * Output an info level log
+   * @param args 要输出的日志内容 The content of the log to be output
+   */
+  info(...args: any[]): void {
+    this.logger.info(...args);
+  }
+
+  /**
+   * 输出一条 warn 级别的日志
+   *
+   * Output a warn level log
+   * @param args 要输出的日志内容 The content of the log to be output
+   */
+  warn(...args: any[]): void {
+    this.logger.warn(...args);
+  }
+
+  /**
+   * 输出一条 error 级别的日志
+   *
+   * Output an error level log
+   * @param args 要输出的日志内容 The content of the log to be output
+   */
+  error(...args: any[]): void {
+    this.logger.error(...args);
+  }
+
+  /**
+   * 应用一个适配器到 Sakiko 框架中
+   *
+   * Apply an adapter to the Sakiko framework
+   * @param adapter 要应用的适配器 The adapter to be applied
+   */
+  apply(adapter: SakikoAdapter): void {
+    try {
+      adapter.init(this);
+      this.adapters.push(adapter);
+      this.info(`adapter ${adapter.name} applied.`);
+    } catch (error) {
+      this.error(`failed to apply adapter ${adapter.name}:`, error);
+    }
+  }
+
+  /**
+   * 启动 Sakiko 框架
+   *
+   * Start the Sakiko framework
+   */
+  async run() {
+    // 并发启动所有已应用的适配器
+    await Promise.all(
+      this.adapters.map(async (adapter) => {
+        try {
+          await adapter.start();
+        } catch (error) {
+          this.error(`failed to run adapter ${adapter.name}:`, error);
+        }
+      })
+    );
+
+    // 挂起主线程，防止进程退出
+    await new Promise(() => {});
+  }
+
+  /**
+   * 获取 SnowFlake ID 生成器实例
+   *
+   * Get the SnowFlake ID generator instance
+   */
+  snowflakeGenerator(): SnowFlake {
+    return this.snowflake;
+  }
+
+  /**
+   * 获取当前 Bot 的节点 ID
+   *
+   * Get the current node ID
+   */
+  getNodeId(): number {
+    return this.nodeId;
+  }
+
+  /**
+   * 获取事件总线实例
+   *
+   * Get the event bus instance
+   */
+  getBus<T extends IEventBus = IEventBus>(): T {
+    return this.bus as T;
+  }
+
+  /**
+   * 获取日志记录器实例
+   *
+   * Get the logger instance
+   */
+  getLogger<T extends ILogger = ILogger>(): T {
+    return this.logger as T;
+  }
+
+  /**
+   * 获取所有已应用的适配器实例
+   *
+   * Get all applied adapter instances
+   * @returns
+   */
+  getAllAdapters(): SakikoAdapter[] {
+    return this.adapters;
+  }
 }
 
-export * from "@/core/interface";
-export * from "@/core/event";
-export * from "@/core/adapter";
-export * from "@/core/handler";
-export * from "@/core/plugin";
-export * from "@/log/interface";
-export * from "@/log/logger";
-export * from "@/bus/bus";
-export * from "@/config/sakiko-config";
-export * from "@/config/merger";
-export * from "@/utils/snowflake";
-export * from "@/error/errors";
-export * from "@/framework/sakiko";
+/**
+ * 创建一个 Sakiko 实例
+ * Create a Sakiko instance
+ * @param options Sakiko 的配置选项 Sakiko configuration options
+ * @returns Sakiko 实例 Sakiko instance
+ */
+export function sakiko(options?: SakikoOptions): Sakiko {
+  return new Sakiko(options);
+}

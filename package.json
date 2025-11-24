@@ -1,91 +1,49 @@
 {
-	"name": "@togawa-group/sakiko",
-	"type": "module",
-	"version": "0.1.11",
-	"description": "A lightweight TypeScript chatbot framework.",
-	"main": "dist/index.cjs",
-	"module": "dist/index.js",
-	"types": "dist/index.d.ts",
-	"exports": {
-		".": {
-			"types": "./dist/index.d.ts",
-			"import": "./dist/index.js",
-			"require": "./dist/index.cjs"
-		},
-		"./package.json": "./package.json"
-	},
-	"files": [
-		"dist",
-		"README.md",
-		"LICENSE"
-	],
-	"repository": {
-		"type": "git",
-		"url": "git+https://github.com/GroupTogawa/sakiko.git"
-	},
-	"scripts": {
-		"build": "tsup src/index.ts --format esm,cjs --dts --out-dir dist --sourcemap --clean",
-		"prepublishOnly": "npm run build"
-	},
-	"publishConfig": {
-		"access": "public"
-	},
-	"keywords": [
-		"chatbot",
-		"framework",
-		"bot",
-		"sdk"
-	],
-	"author": "GroupTogawa",
-	"license": "MIT",
-	"packageManager": "pnpm@10.18.3",
-	"devDependencies": {
-		"@types/node": "^22.7.5",
-		"eslint": "^9.38.0",
-		"jiti": "^2.6.1",
-		"tsup": "^8.5.0",
-		"tsx": "^4.20.6",
-		"typescript": "^5.9.3"
-	},
-	"eslintConfig": {
-		"root": true,
-		"env": {
-			"es2021": true,
-			"node": true,
-			"browser": true
-		},
-		"rules": {
-			"indent": [
-				"error",
-				"tab",
-				{
-					"SwitchCase": 1
-				}
-			],
-			"no-mixed-spaces-and-tabs": [
-				"error",
-				"smart-tabs"
-			],
-			"sort-imports": [
-				"error",
-				{
-					"ignoreCase": false,
-					"ignoreDeclarationSort": false,
-					"ignoreMemberSort": false,
-					"memberSyntaxSortOrder": [
-						"none",
-						"all",
-						"multiple",
-						"single"
-					],
-					"allowSeparatedGroups": false
-				}
-			]
-		}
-	},
-	"dependencies": {
-		"picocolors": "^1.1.1",
-		"tslog": "^4.10.2",
-		"zod": "^4.1.12"
-	}
+  "name": "@grouptogawa/sakiko",
+  "version": "0.2.0",
+  "type": "module",
+  "main": "dist/index.cjs",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "private": false,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/grouptogawa/sakiko.git"
+  },
+  "scripts": {
+    "build": "tsup src/index.ts --format esm,cjs --dts --out-dir dist --sourcemap --clean",
+    "prepublishOnly": "npm run build"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "chatbot",
+    "framework",
+    "bot",
+    "lightweight"
+  ],
+  "license": "MIT",
+  "author": "machinacanis",
+  "devDependencies": {
+    "@types/node": "^24.10.1",
+    "prettier": "^3.6.2",
+    "tsup": "^8.5.1"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  }
 }
