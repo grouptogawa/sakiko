@@ -1,14 +1,8 @@
 import type { ILogger } from "@/logger";
 import type { SakikoAdapter } from "./adapter";
+import { Event } from "./builtin";
 
 const BUILDER_LOCKED_ERROR_MESSAGE = "Builder is locked after handle() call";
-
-/**
- * 事件总线上传递的基本事件类型
- *
- * The basic event type passed on the event bus
- */
-export class Event {}
 
 /**
  * 事件类型的构造器定义
@@ -47,26 +41,26 @@ export type Processor<T extends Event> = (event: T) => T | Promise<T>;
  *
  * The type definition of main handler functions for event handlers
  */
-export type Handler<T extends Event> =
+export type Handler<T extends Event, U extends SakikoAdapter = SakikoAdapter> =
   | ((event: T) => void | boolean | Promise<void | boolean>)
-  | ((
-      event: T,
-      adapter: SakikoAdapter
-    ) => void | boolean | Promise<void | boolean>);
+  | ((event: T, adapter: U) => void | boolean | Promise<void | boolean>);
 
 /**
  * 事件处理器的构建器的接口定义
  *
  * The interface definition of event handler builders
  */
-export interface EventHandlerBuilder<T extends Event> {
+export interface EventHandlerBuilder<
+  T extends Event,
+  U extends SakikoAdapter = SakikoAdapter
+> {
   priority(priority: number): EventHandlerBuilder<T>;
   block(block: boolean): EventHandlerBuilder<T>;
   timeout(timeout: number): EventHandlerBuilder<T>;
   check(rule: Rule<T>): EventHandlerBuilder<T>;
   match(matcher: Matcher<T>): EventHandlerBuilder<T>;
   process(processor: Processor<T>): EventHandlerBuilder<T>;
-  handle(handler: Handler<T>): () => void;
+  handle(handler: Handler<T, U>): () => void;
 }
 
 /**
@@ -74,14 +68,17 @@ export interface EventHandlerBuilder<T extends Event> {
  *
  * The type structure definition of event handlers
  */
-export type EventHandler<T extends Event> = {
+export type EventHandler<
+  T extends Event,
+  U extends SakikoAdapter = SakikoAdapter
+> = {
   priority: number;
   block: boolean;
   timeout?: number;
   rules?: Set<Rule<T>>;
   matchers?: Set<Matcher<T>>;
   processors?: Processor<T>[];
-  handler: Handler<T>;
+  handler: Handler<T, U>;
 };
 
 /**
@@ -91,7 +88,10 @@ export type EventHandler<T extends Event> = {
  */
 export interface IEventBus {
   on<T extends Event>(...ets: EventConstructor<T>[]): EventHandlerBuilder<T>;
-  emit<T extends Event>(event: T, adapter: SakikoAdapter): Promise<void>;
+  emit<T extends Event, U extends SakikoAdapter = SakikoAdapter>(
+    event: T,
+    adapter: U
+  ): Promise<void>;
 }
 
 /**

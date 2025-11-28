@@ -1,12 +1,20 @@
 import type { Sakiko } from ".";
 
-export abstract class SakikoBaseEvent {
+/**
+ * 事件总线上传递的基本事件类型
+ *
+ * The basic event type passed on the event bus
+ */
+export class Event {}
+
+export abstract class SakikoBaseEvent extends Event {
   eventId: string;
   nodeId: number;
 
   abstract selfId: string;
 
   constructor(framework: Sakiko) {
+    super();
     this.eventId = framework.snowflakeGenerator().base36();
     this.nodeId = framework.getNodeId();
   }

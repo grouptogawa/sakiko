@@ -1,5 +1,10 @@
 import type { SakikoAdapter } from "@/adapter";
-import { type IEventBus, Umiri } from "@/bus";
+import {
+  type EventConstructor,
+  type EventHandlerBuilder,
+  type IEventBus,
+  Umiri
+} from "@/bus";
 import type { ILogger } from "@/logger";
 import { SnowFlake, type SnowFlakeOptions } from "@/utils";
 
@@ -169,6 +174,24 @@ export class Sakiko {
    */
   getAllAdapters(): SakikoAdapter[] {
     return this.adapters;
+  }
+
+  /**
+   * 事件总线的快捷订阅方法
+   *
+   * A shortcut method to access the event bus
+   */
+  on<T extends Event>(...ets: EventConstructor<T>[]): EventHandlerBuilder<T> {
+    return this.bus.on(...ets);
+  }
+
+  /**
+   * 事件总线的快捷发布方法
+   *
+   * A shortcut method to emit events to the event bus
+   */
+  async emit<T extends Event>(event: T, adapter: SakikoAdapter): Promise<void> {
+    return this.bus.emit(event, adapter);
   }
 }
 
