@@ -58,8 +58,8 @@ export type Handler<
   U extends ISakikoAdapter = ISakikoAdapter
 > = (
   event: T,
-  adapter: U,
-  ctx: EventHandleContext
+  ctx: EventHandleContext,
+  adapter: U
 ) => void | boolean | Promise<void | boolean>;
 
 /**
@@ -335,17 +335,17 @@ export class Umiri implements IEventBus {
             result = await (
               handlerObj.handler as unknown as (
                 event: T,
-                adapter: U
+                ctx: EventHandleContext
               ) => void | boolean | Promise<void | boolean>
-            )(processedEvent, adapter);
+            )(processedEvent, ctx);
           } else {
             result = await (
               handlerObj.handler as (
                 event: T,
-                adapter: U,
-                ctx: EventHandleContext
+                ctx: EventHandleContext,
+                adapter: U
               ) => void | boolean | Promise<void | boolean>
-            )(processedEvent, adapter, ctx);
+            )(processedEvent, ctx, adapter);
           }
 
           if (handlerObj.block && result === false) {

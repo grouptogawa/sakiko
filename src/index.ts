@@ -236,10 +236,10 @@ export class Sakiko {
    *
    * A shortcut method to access the event bus
    */
-  on<TEvents extends Event[]>(
+  on<TEvents extends Event[], U extends ISakikoAdapter = ISakikoAdapter>(
     ...ets: { [K in keyof TEvents]: EventConstructor<TEvents[K]> }
-  ): EventHandlerBuilder<TEvents[number]> {
-    return this.bus.on(...ets);
+  ): EventHandlerBuilder<TEvents[number], U> {
+    return this.bus.on(...ets) as EventHandlerBuilder<TEvents[number], U>;
   }
 
   /**
