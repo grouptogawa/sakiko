@@ -5,6 +5,22 @@ import { Event } from "./builtin";
 const BUILDER_LOCKED_ERROR_MESSAGE = "Builder is locked after handle() call";
 
 /**
+ * 用于在事件处理流程中管理上下文的上下文管理器
+ *
+ * The context manager for event handling flow
+ */
+export class EventHandleContext {
+  /** 匹配到的文本 The text that matched the pattern */
+  matchedText?: string;
+
+  /** 正则表达式匹配组 The regex match groups */
+  regexGroup?: string[];
+  /** 正则表达式匹配字典 The regex match dictionary */
+  regexDict?: Record<string, string>;
+  [key: string]: any;
+}
+
+/**
  * 事件类型的构造器定义
  *
  * The constructor definition for event types
@@ -19,24 +35,18 @@ export type EventConstructor<T extends Event = Event> = new (
  * The type definition of rule functions for event handlers
  */
 export type Rule<T extends Event = Event> =
+  | ((event: T, ctx: EventHandleContext) => boolean | Promise<boolean>)
   | ((event: T) => boolean | Promise<boolean>)
   | (() => boolean | Promise<boolean>);
-
-/**
- * 事件处理器的匹配器函数类型定义
- *
- * The type definition of matcher functions for event handlers
- */
-export type Matcher<T extends Event = Event> = (
-  event: T
-) => boolean | Promise<boolean>;
 
 /**
  * 事件处理器的预处理器函数类型定义
  *
  * The type definition of processor functions for event handlers
  */
-export type Processor<T extends Event = Event> = (event: T) => T | Promise<T>;
+export type Processor<T extends Event = Event> =
+  | ((event: T, ctx: EventHandleContext) => T | Promise<T>)
+  | ((event: T) => T | Promise<T>);
 
 /**
  * 事件处理器的主处理函数类型定义
@@ -48,7 +58,12 @@ export type Handler<
   U extends SakikoAdapter = SakikoAdapter
 > =
   | ((event: T) => void | boolean | Promise<void | boolean>)
-  | ((event: T, adapter: U) => void | boolean | Promise<void | boolean>);
+  | ((event: T, adapter: U) => void | boolean | Promise<void | boolean>)
+  | ((
+      event: T,
+      adapter: U,
+      ctx: EventHandleContext
+    ) => void | boolean | Promise<void | boolean>);
 
 /**
  * 事件处理器的构建器的接口定义
@@ -62,15 +77,35 @@ export interface EventHandlerBuilder<
   priority(priority: number): EventHandlerBuilder<T>;
   block(block: boolean): EventHandlerBuilder<T>;
   timeout(timeout: number): EventHandlerBuilder<T>;
-  check(rule: Rule<T>): EventHandlerBuilder<T>;
-  match(matcher: Matcher<T>): EventHandlerBuilder<T>;
-  process(processor: Processor<T>): EventHandlerBuilder<T>;
-  // 这里用重载来避免 Handler 类型的联合类型带来的参数个数不确定问题
+
+  // Rule重载
+  match(matcher: () => boolean | Promise<boolean>): EventHandlerBuilder<T>;
+  match(
+    matcher: (event: T) => boolean | Promise<boolean>
+  ): EventHandlerBuilder<T>;
+  match(
+    matcher: (event: T, ctx: EventHandleContext) => boolean | Promise<boolean>
+  ): EventHandlerBuilder<T>;
+
+  // Processor重载
+  process(processor: (event: T) => T | Promise<T>): EventHandlerBuilder<T>;
+  process(
+    processor: (event: T, ctx: EventHandleContext) => T | Promise<T>
+  ): EventHandlerBuilder<T>;
+
+  // Handler重载
   handle(
     handler: (event: T) => void | boolean | Promise<void | boolean>
   ): () => void;
   handle(
     handler: (event: T, adapter: U) => void | boolean | Promise<void | boolean>
+  ): () => void;
+  handle(
+    handler: (
+      event: T,
+      adapter: U,
+      ctx: EventHandleContext
+    ) => void | boolean | Promise<void | boolean>
   ): () => void;
 }
 
@@ -87,7 +122,6 @@ export type EventHandler<
   block: boolean;
   timeout?: number;
   rules?: Set<Rule<T>>;
-  matchers?: Set<Matcher<T>>;
   processors?: Processor<T>[];
   handler: Handler<T, U>;
 };
@@ -143,7 +177,6 @@ export class Umiri implements IEventBus {
     let block = false;
     let timeout: number | undefined = undefined;
     let rules: Set<Rule<T>> = new Set();
-    let matchers: Set<Matcher<T>> = new Set();
     let processors: Processor<T>[] = [];
 
     let handled = false;
@@ -165,14 +198,9 @@ export class Umiri implements IEventBus {
         timeout = t;
         return builder;
       },
-      check(rule: Rule<T>) {
+      match(matcher: Rule<T>) {
         if (handled) throw new Error(BUILDER_LOCKED_ERROR_MESSAGE);
-        rules.add(rule);
-        return builder;
-      },
-      match(matcher: Matcher<T>) {
-        if (handled) throw new Error(BUILDER_LOCKED_ERROR_MESSAGE);
-        matchers.add(matcher);
+        rules.add(matcher);
         return builder;
       },
       process(processor: Processor<T>) {
@@ -206,7 +234,6 @@ export class Umiri implements IEventBus {
             block,
             timeout,
             rules: rules.size ? rules : undefined,
-            matchers: matchers.size ? matchers : undefined,
             processors: processors.length ? processors : undefined,
             handler
           };
@@ -269,37 +296,50 @@ export class Umiri implements IEventBus {
 
       // 收集到当前优先级的所有处理器后，并发执行这些处理器
       const tasks = Array.from(handlersAtType).map((handlerObj) => async () => {
+        // 创建事件处理上下文
+        const ctx = new EventHandleContext();
+
         const task = async () => {
           // 规则检查
           if (handlerObj.rules) {
             const ruleResults = await Promise.all(
-              Array.from(handlerObj.rules).map((rule) =>
-                rule.length === 0
-                  ? (rule as () => boolean | Promise<boolean>)()
-                  : (rule as (e: T) => boolean | Promise<boolean>)(event)
-              )
+              Array.from(handlerObj.rules).map((rule) => {
+                if (rule.length === 0) {
+                  return (rule as () => boolean | Promise<boolean>)();
+                } else if (rule.length === 1) {
+                  return (rule as (e: T) => boolean | Promise<boolean>)(event);
+                } else {
+                  return (
+                    rule as (
+                      e: T,
+                      ctx: EventHandleContext
+                    ) => boolean | Promise<boolean>
+                  )(event, ctx);
+                }
+              })
             );
             if (!ruleResults.every(Boolean)) return;
-          }
-
-          // 匹配器检查
-          if (handlerObj.matchers) {
-            const matcherResults = await Promise.all(
-              Array.from(handlerObj.matchers).map((matcher) => matcher(event))
-            );
-            if (!matcherResults.every(Boolean)) return;
           }
 
           // 顺序执行预处理函数
           let processedEvent = event;
           if (handlerObj.processors) {
             for (const processor of handlerObj.processors) {
-              processedEvent = await processor(processedEvent);
+              if (processor.length === 1) {
+                processedEvent = await (processor as (e: T) => T | Promise<T>)(
+                  processedEvent
+                );
+              } else {
+                processedEvent = await (
+                  processor as (e: T, ctx: EventHandleContext) => T | Promise<T>
+                )(processedEvent, ctx);
+              }
             }
           }
 
           // 执行处理函数
           let result: void | boolean | Promise<void | boolean>;
+
           // 根据 handler 函数的参数长度决定调用方式
           if (handlerObj.handler.length === 1) {
             result = await (
@@ -307,13 +347,21 @@ export class Umiri implements IEventBus {
                 event: T
               ) => void | boolean | Promise<void | boolean>
             )(processedEvent);
-          } else {
+          } else if (handlerObj.handler.length === 2) {
             result = await (
               handlerObj.handler as (
                 event: T,
                 adapter: U
               ) => void | boolean | Promise<void | boolean>
             )(processedEvent, adapter);
+          } else {
+            result = await (
+              handlerObj.handler as (
+                event: T,
+                adapter: U,
+                ctx: EventHandleContext
+              ) => void | boolean | Promise<void | boolean>
+            )(processedEvent, adapter, ctx);
           }
 
           if (handlerObj.block && result === false) {

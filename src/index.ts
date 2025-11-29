@@ -34,6 +34,9 @@ export class Sakiko {
 
   private adapters: SakikoAdapter[] = [];
 
+  private stopPromise: Promise<void> | null = null;
+  private resolveStopPromise: (() => void) | null = null;
+
   private displayName = ANSI_BOLD + "sakiko" + ANSI_RESET;
 
   constructor(options?: SakikoOptions) {
@@ -124,6 +127,7 @@ export class Sakiko {
    * Start the Sakiko framework
    */
   async run() {
+    this.debug(`[${this.displayName}] running sakiko...`);
     // 并发启动所有已应用的适配器
     await Promise.all(
       this.adapters.map(async (adapter) => {
@@ -138,8 +142,47 @@ export class Sakiko {
       })
     );
 
-    // 挂起主线程，防止进程退出
-    await new Promise(() => {});
+    // 创建一个可解决的Promise来等待停止信号
+    this.stopPromise = new Promise<void>((resolve) => {
+      this.resolveStopPromise = resolve;
+    });
+
+    // 等待停止信号
+    await this.stopPromise;
+
+    this.debug(`[${this.displayName}] run() function completed.`);
+  }
+
+  /**
+   * 停止 Sakiko 框架
+   *
+   * Stop the Sakiko framework
+   */
+  async stop() {
+    this.debug(`[${this.displayName}] stopping sakiko...`);
+
+    // 并发停止所有已应用的适配器
+    await Promise.all(
+      this.adapters.map(async (adapter) => {
+        try {
+          await adapter.stop();
+        } catch (error) {
+          this.error(
+            `[${this.displayName}] failed to stop adapter ${ANSI_GREEN}${adapter.name}${ANSI_RESET}:`,
+            error
+          );
+        }
+      })
+    );
+
+    // 发送停止信号，使run()函数中的Promise完成
+    if (this.resolveStopPromise) {
+      this.resolveStopPromise();
+      this.resolveStopPromise = null;
+      this.stopPromise = null;
+    }
+
+    this.info(`[${this.displayName}] sakiko stopped, goodbye`);
   }
 
   /**
@@ -193,7 +236,9 @@ export class Sakiko {
    *
    * A shortcut method to access the event bus
    */
-  on<T extends Event>(...ets: EventConstructor<T>[]): EventHandlerBuilder<T> {
+  on<TEvents extends Event[]>(
+    ...ets: { [K in keyof TEvents]: EventConstructor<TEvents[K]> }
+  ): EventHandlerBuilder<TEvents[number]> {
     return this.bus.on(...ets);
   }
 
@@ -202,7 +247,10 @@ export class Sakiko {
    *
    * A shortcut method to emit events to the event bus
    */
-  async emit<T extends Event>(event: T, adapter: SakikoAdapter): Promise<void> {
+  async emit<T extends Event = Event, U extends SakikoAdapter = SakikoAdapter>(
+    event: T,
+    adapter: U
+  ): Promise<void> {
     return this.bus.emit(event, adapter);
   }
 }
@@ -222,4 +270,5 @@ export * from "@/builtin";
 export * from "@/bus";
 export * from "@/colors";
 export * from "@/logger";
+export * from "@/rule";
 export * from "@/utils";
