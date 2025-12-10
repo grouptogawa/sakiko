@@ -1,7 +1,6 @@
-import type { ISakikoLogger } from "@/log/interface";
+import type { ISakikoLogger } from "../log/interface";
 import type { ISakikoPlugin } from "./interface";
-import { sakiko } from "../global";
-import type { Sakiko } from "@/core/sakiko";
+import type { Sakiko } from "../core/sakiko";
 
 /**
  * Sakiko 适配器抽象类。

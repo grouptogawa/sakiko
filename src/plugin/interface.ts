@@ -1,5 +1,5 @@
-import type { ISakikoLogger } from "@/log/interface";
-import type { Sakiko } from "@/core/sakiko";
+import type { ISakikoLogger } from "../log/interface";
+import type { Sakiko } from "../core/sakiko";
 
 export interface ISakikoPlugin {
     // 插件元信息

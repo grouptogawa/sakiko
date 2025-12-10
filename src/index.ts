@@ -17,6 +17,8 @@ export {
     type Messageable
 } from "./core/event";
 export {
+    type MatcherFn,
+    type ExtractBotType,
     MatcherBuilder,
     buildMatcherFor,
     onStartsWith,

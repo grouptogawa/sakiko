@@ -1,4 +1,4 @@
-import type { ISakikoLogger } from "@/log/interface";
+import type { ISakikoLogger } from "../log/interface";
 import type { UmiriBus } from "@grouptogawa/umiri";
 
 export interface SakikoInit {

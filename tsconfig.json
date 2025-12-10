@@ -6,9 +6,6 @@
         "rootDir": "./src",
         "outDir": "./dist",
         "baseUrl": "./",
-        "paths": {
-            "@/*": ["src/*"]
-        },
         "stripInternal": true,
 
         // Environment setup & latest features

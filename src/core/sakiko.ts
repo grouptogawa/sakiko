@@ -1,12 +1,12 @@
-import type { ISakikoLogger } from "@/log/interface";
-import type { ISakikoPlugin } from "@/plugin/interface";
+import type { ISakikoLogger } from "../log/interface";
+import type { ISakikoPlugin } from "../plugin/interface";
 import type { MatcherBuilder } from "./matcher";
 import type { SakikoBot } from "./bot";
-import type { SakikoInit } from "@/core/init";
+import type { SakikoInit } from "../core/init";
 import { UmiriBus } from "@grouptogawa/umiri";
 import chalk from "chalk";
-import { createDefaultLogger } from "@/log/default";
-import { merge } from "@/utils/merge";
+import { createDefaultLogger } from "../log/default";
+import { merge } from "../utils/merge";
 
 /**
  * Sakiko 框架的核心类
@@ -25,7 +25,7 @@ export class Sakiko {
     protected readonly _name: string = "sakiko";
     protected readonly _displayName: string =
         "[" + chalk.green(this._name) + "]";
-    protected readonly _version: string = "0.4.7";
+    protected readonly _version: string = "0.4.8";
 
     private _logger?: ISakikoLogger;
     private _bus?: UmiriBus;
@@ -477,7 +477,7 @@ ${chalk.gray(`- @GroupTogawa 2025 | MIT License`)}
 
             this.getSakikoLogger().info("shutdown complete, exiting.");
             this.getSakikoLogger().info(
-                `Goodbye/^. ${chalk.hex("#7799CC")("█") + chalk.hex("#335566")("█") + chalk.hex("#BB9955")("█") + chalk.hex("#AA4477")("█") + chalk.hex("#779977")("█")}`
+                `Goodbye/^ ${chalk.hex("#7799CC")("█") + chalk.hex("#335566")("█") + chalk.hex("#BB9955")("█") + chalk.hex("#AA4477")("█") + chalk.hex("#779977")("█")}`
             );
 
             process.exit(0); // 只有等所有插件 stop 完再真正退出

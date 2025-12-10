@@ -1,6 +1,6 @@
 import type { SakikoBot } from "./bot";
 import { UmiriEvent } from "@grouptogawa/umiri";
-import { sf } from "@/utils/snowflake";
+import { sf } from "../utils/snowflake";
 
 /**
  * Sakiko 事件基类，一般来讲所有消息事件均应继承自此类。
@@ -11,8 +11,8 @@ import { sf } from "@/utils/snowflake";
  * @abstract
  */
 export class SakikoEvent<
-    Payload extends object = any,
-    Bot extends SakikoBot<any> = SakikoBot<any>
+    Payload extends object,
+    Bot extends SakikoBot<any>
 > extends UmiriEvent<Payload> {
     // 生成一个自增且唯一的事件 ID
     protected readonly _id = sf.bigint();

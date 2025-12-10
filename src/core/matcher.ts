@@ -10,9 +10,7 @@ import { SakikoEvent, type Messageable } from "./event";
 import { contains, endswith, fullmatch, regex, startswith } from "./mw";
 
 import { Sakiko } from "./sakiko";
-import type { SakikoAdapter } from "@/plugin/adapter";
-import type { SakikoBot } from "@/core/bot";
-import { sakiko } from "../global";
+import type { SakikoBot } from "../core/bot";
 
 /**
  * Bot 构造函数类型
@@ -26,11 +24,13 @@ type BotConstructor<Bot extends SakikoBot<any>> = new (...args: any[]) => Bot;
  *
  * Matcher function type
  */
-type MatcherFn<
+export type MatcherFn<
     Bot extends SakikoBot<any>,
     Context extends IHandlerContext,
-    Event extends SakikoEvent<any>
+    Event extends SakikoEvent<any, Bot>
 > = (bot: Bot, event: Event, context: Context) => Promise<boolean> | boolean;
+
+export type ExtractBotType<E> = E extends SakikoEvent<any, infer B> ? B : never;
 
 /**
  * 事件处理器构建器
@@ -159,10 +159,10 @@ export function buildMatcherFor<
  *
  * create a shortcut matcher to match any message event.
  */
-export function onEvent<
-    Bot extends SakikoBot<any>,
-    Events extends (SakikoEvent<any, Bot> & Messageable)[]
->(...ets: { [K in keyof Events]: EventConstructor<Events[K]> }) {
+export function onEvent<Events extends (SakikoEvent<any, any> & Messageable)[]>(
+    ...ets: { [K in keyof Events]: EventConstructor<Events[K]> }
+) {
+    type Bot = ExtractBotType<Events[number]>;
     return buildMatcherFor<Bot, SakikoContext, Events>(SakikoContext, ...ets);
 }
 
@@ -176,10 +176,10 @@ export function onStartsWith(
     ignoreCase: boolean = false
 ) {
     return {
-        ofEvent<
-            Bot extends SakikoBot<any>,
-            Events extends (SakikoEvent<any, Bot> & Messageable)[]
-        >(...ets: { [K in keyof Events]: EventConstructor<Events[K]> }) {
+        ofEvent<Events extends (SakikoEvent<any, any> & Messageable)[]>(
+            ...ets: { [K in keyof Events]: EventConstructor<Events[K]> }
+        ) {
+            type Bot = ExtractBotType<Events[number]>;
             return buildMatcherFor<Bot, MatchContext, Events>(
                 MatchContext,
                 ...ets
@@ -197,10 +197,10 @@ export function onEndsWith(
     ignoreCase: boolean = false
 ) {
     return {
-        ofEvent<
-            Bot extends SakikoBot<any>,
-            Events extends (SakikoEvent<any, Bot> & Messageable)[]
-        >(...ets: { [K in keyof Events]: EventConstructor<Events[K]> }) {
+        ofEvent<Events extends (SakikoEvent<any, any> & Messageable)[]>(
+            ...ets: { [K in keyof Events]: EventConstructor<Events[K]> }
+        ) {
+            type Bot = ExtractBotType<Events[number]>;
             return buildMatcherFor<Bot, MatchContext, Events>(
                 MatchContext,
                 ...ets
@@ -218,10 +218,10 @@ export function onFullMatch(
     ignoreCase: boolean = false
 ) {
     return {
-        ofEvent<
-            Bot extends SakikoBot<any>,
-            Events extends (SakikoEvent<any, Bot> & Messageable)[]
-        >(...ets: { [K in keyof Events]: EventConstructor<Events[K]> }) {
+        ofEvent<Events extends (SakikoEvent<any, any> & Messageable)[]>(
+            ...ets: { [K in keyof Events]: EventConstructor<Events[K]> }
+        ) {
+            type Bot = ExtractBotType<Events[number]>;
             return buildMatcherFor<Bot, MatchContext, Events>(
                 MatchContext,
                 ...ets
@@ -239,10 +239,10 @@ export function onContains(
     ignoreCase: boolean = false
 ) {
     return {
-        ofEvent<
-            Bot extends SakikoBot<any>,
-            Events extends (SakikoEvent<any, Bot> & Messageable)[]
-        >(...ets: { [K in keyof Events]: EventConstructor<Events[K]> }) {
+        ofEvent<Events extends (SakikoEvent<any, any> & Messageable)[]>(
+            ...ets: { [K in keyof Events]: EventConstructor<Events[K]> }
+        ) {
+            type Bot = ExtractBotType<Events[number]>;
             return buildMatcherFor<Bot, MatchContext, Events>(
                 MatchContext,
                 ...ets
@@ -257,10 +257,10 @@ export function onContains(
  */
 export function onRegex(pattern: RegExp) {
     return {
-        ofEvent<
-            Bot extends SakikoBot<any>,
-            Events extends (SakikoEvent<any, Bot> & Messageable)[]
-        >(...ets: { [K in keyof Events]: EventConstructor<Events[K]> }) {
+        ofEvent<Events extends (SakikoEvent<any, any> & Messageable)[]>(
+            ...ets: { [K in keyof Events]: EventConstructor<Events[K]> }
+        ) {
+            type Bot = ExtractBotType<Events[number]>;
             return buildMatcherFor<Bot, RegexContext, Events>(
                 RegexContext,
                 ...ets

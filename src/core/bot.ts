@@ -1,4 +1,4 @@
-import type { SakikoAdapter } from "@/plugin/adapter";
+import type { SakikoAdapter } from "../plugin/adapter";
 
 export abstract class SakikoBot<T extends SakikoAdapter> {
     protected _selfId: string;

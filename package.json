@@ -1,6 +1,6 @@
 {
     "name": "@grouptogawa/sakiko",
-    "version": "0.4.7",
+    "version": "0.4.8",
     "author": "machinacanis",
     "repository": {
         "type": "git",
@@ -9,12 +9,12 @@
     "main": "dist/index.cjs",
     "module": "dist/index.js",
     "dependencies": {
-        "@grouptogawa/umiri": "^2.1.4",
+        "@grouptogawa/umiri": "^2.1.5",
         "chalk": "^5.6.2",
         "tslog": "^4.10.2"
     },
     "devDependencies": {
-        "@types/node": "^24.10.2",
+        "@types/node": "^24.10.3",
         "prettier": "^3.7.4",
         "tsup": "^8.5.1"
     },
