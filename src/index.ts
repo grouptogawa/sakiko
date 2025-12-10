@@ -16,7 +16,15 @@ export {
     type Targetable,
     type Messageable
 } from "./core/event";
-export { MatcherBuilder, buildMatcherFor } from "./core/matcher";
+export {
+    MatcherBuilder,
+    buildMatcherFor,
+    onStartsWith,
+    onEndsWith,
+    onFullMatch,
+    onContains,
+    onRegex
+} from "./core/matcher";
 export { startswith, endswith, fullmatch, contains, regex } from "./core/mw";
 export { Sakiko } from "./core/sakiko";
 

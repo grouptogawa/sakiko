@@ -25,7 +25,7 @@ export class Sakiko {
     protected readonly _name: string = "sakiko";
     protected readonly _displayName: string =
         "[" + chalk.green(this._name) + "]";
-    protected readonly _version: string = "0.4.3";
+    protected readonly _version: string = "0.4.4";
 
     private _logger?: ISakikoLogger;
     private _bus?: UmiriBus;
