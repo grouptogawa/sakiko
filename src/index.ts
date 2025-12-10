@@ -23,7 +23,8 @@ export {
     onEndsWith,
     onFullMatch,
     onContains,
-    onRegex
+    onRegex,
+    onEvent
 } from "./core/matcher";
 export { startswith, endswith, fullmatch, contains, regex } from "./core/mw";
 export { Sakiko } from "./core/sakiko";

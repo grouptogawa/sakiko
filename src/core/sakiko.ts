@@ -25,7 +25,7 @@ export class Sakiko {
     protected readonly _name: string = "sakiko";
     protected readonly _displayName: string =
         "[" + chalk.green(this._name) + "]";
-    protected readonly _version: string = "0.4.4";
+    protected readonly _version: string = "0.4.5";
 
     private _logger?: ISakikoLogger;
     private _bus?: UmiriBus;
@@ -469,7 +469,9 @@ ${chalk.gray(`- @GroupTogawa 2025 | MIT License`)}
             }
 
             this.getSakikoLogger().info("shutdown complete, exiting.");
-            this.getSakikoLogger().info("goodbye.");
+            this.getSakikoLogger().info(
+                `${chalk.hex("#7799CC")("█") + chalk.hex("#335566")("█") + chalk.hex("#BB9955")("█") + chalk.hex("#AA4477")("█") + chalk.hex("#779977")("█")}goodbye.`
+            );
 
             process.exit(0); // 只有等所有插件 stop 完再真正退出
         };
