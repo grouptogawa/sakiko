@@ -1,12 +1,12 @@
 import type { ISakikoLogger } from "@/log/interface";
 import type { ISakikoPlugin } from "@/plugin/interface";
+import type { MatcherBuilder } from "./matcher";
+import type { SakikoBot } from "./bot";
 import type { SakikoInit } from "@/core/init";
 import { UmiriBus } from "@grouptogawa/umiri";
 import chalk from "chalk";
 import { createDefaultLogger } from "@/log/default";
 import { merge } from "@/utils/merge";
-import type { SakikoBot } from "./bot";
-import type { MatcherBuilder } from "./matcher";
 
 /**
  * Sakiko 框架的核心类
@@ -25,7 +25,7 @@ export class Sakiko {
     protected readonly _name: string = "sakiko";
     protected readonly _displayName: string =
         "[" + chalk.green(this._name) + "]";
-    protected readonly _version: string = "0.4.0";
+    protected readonly _version: string = "0.4.2";
 
     private _logger?: ISakikoLogger;
     private _bus?: UmiriBus;
@@ -247,6 +247,28 @@ ${chalk.gray(`- @GroupTogawa 2025 | MIT License`)}
     }
 
     /**
+     * 获取 Sakiko 实例中加载的所有配置项
+     *
+     * get all configuration items of the Sakiko instance
+     *
+     * @returns Sakiko 实例的所有配置项 / all configuration items of the Sakiko instance
+     */
+    getAllConfigs(): object {
+        return { ...this._config };
+    }
+
+    /**
+     * 获取 Sakiko 实例中加载的所有配置项（别名）
+     *
+     * get all configuration items of the Sakiko instance (alias)
+     *
+     * @returns Sakiko 实例的所有配置项 / all configuration items of the Sakiko instance
+     */
+    get configs(): object {
+        return this.getAllConfigs();
+    }
+
+    /**
      * 安装一个 Sakiko 插件
      *
      * install a Sakiko plugin
@@ -374,6 +396,13 @@ ${chalk.gray(`- @GroupTogawa 2025 | MIT License`)}
      * @param bot - 要添加的机器人实例 / the bot instance to add
      */
     addBot(bot: SakikoBot<any>): void {
+        // 首先要检测该机器人是否已经存在
+        if (this._bots.has(bot.selfId)) {
+            this.getSakikoLogger().warn(
+                `bot with selfId ${bot.selfId} already exists, stop adding.`
+            );
+            return;
+        }
         this._bots.set(bot.selfId, bot);
     }
 
@@ -385,6 +414,12 @@ ${chalk.gray(`- @GroupTogawa 2025 | MIT License`)}
      * @param selfId - 要移除的机器人的 ID / the ID of the bot to remove
      */
     removeBot(selfId: string): void {
+        if (!this._bots.has(selfId)) {
+            this.getSakikoLogger().warn(
+                `bot with selfId ${selfId} does not exist, stop removing.`
+            );
+            return;
+        }
         this._bots.delete(selfId);
     }
 
