@@ -25,7 +25,7 @@ export class Sakiko {
     protected readonly _name: string = "sakiko";
     protected readonly _displayName: string =
         "[" + chalk.green(this._name) + "]";
-    protected readonly _version: string = "0.4.6";
+    protected readonly _version: string = "0.4.7";
 
     private _logger?: ISakikoLogger;
     private _bus?: UmiriBus;
@@ -66,17 +66,18 @@ export class Sakiko {
             _displayName: displayName,
             trace(...args: any[]) {
                 this._logger.trace(
-                    chalk.cyanBright(this._displayName, ...args)
+                    this._displayName,
+                    chalk.cyanBright(...args)
                 );
             },
             debug(...args: any[]) {
-                this._logger.debug(chalk.gray(this._displayName, ...args));
+                this._logger.debug(this._displayName, chalk.gray(...args));
             },
             info(...args: any[]) {
                 this._logger.info(this._displayName, ...args);
             },
             warn(...args: any[]) {
-                this._logger.warn(chalk.yellow(this._displayName, ...args));
+                this._logger.warn(this._displayName, chalk.yellow(...args));
             },
             error(...args: any[]) {
                 this._logger.error(this._displayName, ...args);
@@ -182,7 +183,7 @@ ${chalk.gray(`- @GroupTogawa 2025 | MIT License`)}
 
         // 如果没有提供 logger，则创建一个默认的 tslog logger
         this._logger = init?.logger ?? createDefaultLogger(init?.logLevel);
-        this._bus = init?.bus ?? new UmiriBus(this.logger);
+        this._bus = init?.bus ?? new UmiriBus(this.getBusLogger());
 
         this._inited = true;
         this.getSakikoLogger().info("sakiko initialized successfully.");
