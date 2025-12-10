@@ -72,9 +72,9 @@ export interface hasSender {
     getSenderId(): string;
 }
 
-export interface hasTarget {
-    getTargetId(): string;
-    toMe(): boolean;
+export interface Targetable {
+    mentioned(userId: string): boolean;
+    mentionedMe(): boolean;
 }
 
 export interface Messageable {

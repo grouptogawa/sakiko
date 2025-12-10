@@ -13,7 +13,7 @@ export {
 export {
     SakikoEvent,
     type hasSender,
-    type hasTarget,
+    type Targetable,
     type Messageable
 } from "./core/event";
 export { MatcherBuilder, buildMatcherFor } from "./core/matcher";
