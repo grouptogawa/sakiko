@@ -1,3 +1,4 @@
+import type { SakikoBot } from "./bot";
 import { UmiriEvent } from "@grouptogawa/umiri";
 import { sf } from "@/utils/snowflake";
 
@@ -10,16 +11,30 @@ import { sf } from "@/utils/snowflake";
  * @abstract
  */
 export class SakikoEvent<
-    Payload extends object = any
+    Payload extends object = any,
+    Bot extends SakikoBot<any> = SakikoBot<any>
 > extends UmiriEvent<Payload> {
     // 生成一个自增且唯一的事件 ID
     protected readonly _id = sf.bigint();
     protected readonly _createdAt = Date.now();
     protected _selfId: string;
+    protected _bot: Bot;
 
-    constructor(selfId: string, payload: Payload) {
+    constructor(bot: Bot, payload: Payload) {
         super(payload);
-        this._selfId = selfId;
+        this._selfId = bot.selfId;
+        this._bot = bot;
+    }
+
+    /**
+     * 获取所属的机器人实例。
+     *
+     * get the bot instance.
+     *
+     * @returns 机器人实例 / The bot instance
+     */
+    getBot(): Bot {
+        return this._bot;
     }
 
     /**

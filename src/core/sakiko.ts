@@ -25,7 +25,7 @@ export class Sakiko {
     protected readonly _name: string = "sakiko";
     protected readonly _displayName: string =
         "[" + chalk.green(this._name) + "]";
-    protected readonly _version: string = "0.4.2";
+    protected readonly _version: string = "0.4.3";
 
     private _logger?: ISakikoLogger;
     private _bus?: UmiriBus;
@@ -521,13 +521,10 @@ ${chalk.gray(`- @GroupTogawa 2025 | MIT License`)}
             return unregister;
         } catch (e) {
             this.getSakikoLogger().error(
-                `failed to register matcher for bot ${matcher.bot.name}:`,
-                e
-            );
-            this.getSakikoLogger().error(
-                `matcher details: bot=${matcher.bot.name}, ets=[${matcher.ets
+                `failed to register matcher with details: ets=[${matcher.ets
                     .map((et) => et.name)
-                    .join(", ")}], ct=${matcher.ct.name}`
+                    .join(", ")}], ct=${matcher.ct.name}`,
+                e
             );
         }
         return () => {};

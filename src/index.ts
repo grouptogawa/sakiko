@@ -33,3 +33,7 @@ export { type ISakikoPlugin } from "./plugin/interface";
 
 export { merge } from "./utils/merge";
 export { sf } from "./utils/snowflake";
+
+// global singleton
+
+export { sakiko } from "./global";

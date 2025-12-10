@@ -1,4 +1,3 @@
-import type { SakikoBot } from "@/core/bot";
 import type {
     EventConstructor,
     EventHandler,
@@ -6,10 +5,14 @@ import type {
     HandlerContextConstructor,
     IHandlerContext
 } from "@grouptogawa/umiri";
-import type { SakikoEvent } from "./event";
+import { MatchContext, RegexContext, SakikoContext } from "./context";
+import { SakikoEvent, type Messageable } from "./event";
+import { contains, endswith, fullmatch, regex, startswith } from "./mw";
+
+import { Sakiko } from "./sakiko";
 import type { SakikoAdapter } from "@/plugin/adapter";
+import type { SakikoBot } from "@/core/bot";
 import { sakiko } from "../global";
-import type { Sakiko } from "./sakiko";
 
 /**
  * Bot 构造函数类型
@@ -37,7 +40,7 @@ type MatcherFn<
 export class MatcherBuilder<
     Bot extends SakikoBot<any>,
     Context extends IHandlerContext,
-    Events extends SakikoEvent<any>[]
+    Events extends SakikoEvent<any, Bot>[]
 > {
     _priority = 0;
     _block = false;
@@ -46,7 +49,6 @@ export class MatcherBuilder<
     _fn?: MatcherFn<Bot, Context, Events[number]>;
 
     constructor(
-        public bot: BotConstructor<Bot>,
         public ct: HandlerContextConstructor<Context>,
         public ets: { [K in keyof Events]: EventConstructor<Events[K]> }
     ) {}
@@ -127,28 +129,10 @@ export class MatcherBuilder<
             timeout: this._timeout > 0 ? this._timeout : undefined,
             middlewares: this._mws.length > 0 ? this._mws : undefined,
             handle: (event: Events[number], context: Context) => {
-                // 这里需要封装一个bot查询的能力注入到handle中
-                const bot = sakiko.getBot(event.getSelfId());
-                if (!bot) {
-                    const e = new Error(
-                        `bot with selfId ${event.getSelfId()} not found, cannot handle ${event.constructor.name} with id ${event.getEventId()}`
-                    );
-                    sakiko.getSakikoLogger().error(e);
-                    throw e;
-                }
-                // 如果成功提取到bot，则尝试检测它是否是正确的类型
-                if (bot && bot instanceof this.bot) {
-                    // 注入正确类型的bot
-                    return this._fn
-                        ? this._fn(bot as Bot, event, context)
-                        : Promise.resolve(true);
-                } else {
-                    const e = new Error(
-                        `bot with selfId ${event.getSelfId()} is not instance of expected bot class, cannot handle ${event.constructor.name} with id ${event.getEventId()}`
-                    );
-                    sakiko.getSakikoLogger().error(e);
-                    throw e;
-                }
+                // 注入bot
+                return this._fn
+                    ? this._fn(event.getBot(), event, context)
+                    : Promise.resolve(true);
             },
             registered: false
         } as EventHandler<Events[number], Context>;
@@ -163,11 +147,124 @@ export class MatcherBuilder<
 export function buildMatcherFor<
     Bot extends SakikoBot<any>,
     Context extends IHandlerContext,
-    Events extends SakikoEvent<any>[]
+    Events extends SakikoEvent<any, Bot>[]
 >(
-    bot: BotConstructor<Bot>,
     ct: HandlerContextConstructor<Context>,
     ...ets: { [K in keyof Events]: EventConstructor<Events[K]> }
 ) {
-    return new MatcherBuilder<Bot, Context, Events>(bot, ct, ets);
+    return new MatcherBuilder<Bot, Context, Events>(ct, ets);
+}
+
+/** 创建一个用于匹配任意消息事件的快捷匹配器
+ *
+ * create a shortcut matcher to match any message event.
+ */
+export function onEvent<
+    Bot extends SakikoBot<any>,
+    Events extends (SakikoEvent<any, Bot> & Messageable)[]
+>(...ets: { [K in keyof Events]: EventConstructor<Events[K]> }) {
+    return buildMatcherFor<Bot, SakikoContext, Events>(SakikoContext, ...ets);
+}
+
+/**
+ * 创建一个用于匹配消息开头文本的快捷匹配器
+ *
+ * create a shortcut matcher to match message starting text.
+ */
+export function onStartsWith(
+    text: string | string[],
+    ignoreCase: boolean = false
+) {
+    return {
+        ofEvent<
+            Bot extends SakikoBot<any>,
+            Events extends (SakikoEvent<any, Bot> & Messageable)[]
+        >(...ets: { [K in keyof Events]: EventConstructor<Events[K]> }) {
+            return buildMatcherFor<Bot, MatchContext, Events>(
+                MatchContext,
+                ...ets
+            ).use(startswith(Array.isArray(text) ? text : [text], ignoreCase));
+        }
+    };
+}
+
+/** 创建一个用于匹配消息结尾文本的快捷匹配器
+ *
+ * create a shortcut matcher to match message ending text.
+ */
+export function onEndsWith(
+    text: string | string[],
+    ignoreCase: boolean = false
+) {
+    return {
+        ofEvent<
+            Bot extends SakikoBot<any>,
+            Events extends (SakikoEvent<any, Bot> & Messageable)[]
+        >(...ets: { [K in keyof Events]: EventConstructor<Events[K]> }) {
+            return buildMatcherFor<Bot, MatchContext, Events>(
+                MatchContext,
+                ...ets
+            ).use(endswith(Array.isArray(text) ? text : [text], ignoreCase));
+        }
+    };
+}
+
+/** 创建一个用于匹配整段消息文本的快捷匹配器
+ *
+ * create a shortcut matcher to fully match message text.
+ */
+export function onFullMatch(
+    text: string | string[],
+    ignoreCase: boolean = false
+) {
+    return {
+        ofEvent<
+            Bot extends SakikoBot<any>,
+            Events extends (SakikoEvent<any, Bot> & Messageable)[]
+        >(...ets: { [K in keyof Events]: EventConstructor<Events[K]> }) {
+            return buildMatcherFor<Bot, MatchContext, Events>(
+                MatchContext,
+                ...ets
+            ).use(fullmatch(Array.isArray(text) ? text : [text], ignoreCase));
+        }
+    };
+}
+
+/** 创建一个用于匹配包含指定文本的快捷匹配器
+ *
+ * create a shortcut matcher to match message containing specified text.
+ */
+export function onContains(
+    text: string | string[],
+    ignoreCase: boolean = false
+) {
+    return {
+        ofEvent<
+            Bot extends SakikoBot<any>,
+            Events extends (SakikoEvent<any, Bot> & Messageable)[]
+        >(...ets: { [K in keyof Events]: EventConstructor<Events[K]> }) {
+            return buildMatcherFor<Bot, MatchContext, Events>(
+                MatchContext,
+                ...ets
+            ).use(contains(Array.isArray(text) ? text : [text], ignoreCase));
+        }
+    };
+}
+
+/** 创建一个用于匹配正则表达式的快捷匹配器
+ *
+ * create a shortcut matcher to match regex pattern.
+ */
+export function onRegex(pattern: RegExp) {
+    return {
+        ofEvent<
+            Bot extends SakikoBot<any>,
+            Events extends (SakikoEvent<any, Bot> & Messageable)[]
+        >(...ets: { [K in keyof Events]: EventConstructor<Events[K]> }) {
+            return buildMatcherFor<Bot, RegexContext, Events>(
+                RegexContext,
+                ...ets
+            ).use(regex(pattern));
+        }
+    };
 }
