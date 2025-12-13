@@ -1,5 +1,5 @@
 import type { ISakikoLogger } from "../log/interface";
-import type { UmiriBus } from "@grouptogawa/umiri";
+import type { UmiriBus } from "@togawa-dev/umiri";
 
 export interface SakikoInit {
     // Sakiko 内部状态相关的配置项

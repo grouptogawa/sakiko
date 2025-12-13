@@ -4,7 +4,7 @@ import type {
     EventHandlerMiddleware,
     HandlerContextConstructor,
     IHandlerContext
-} from "@grouptogawa/umiri";
+} from "@togawa-dev/umiri";
 import { MatchContext, RegexContext, SakikoContext } from "./context";
 import { SakikoEvent, type Messageable } from "./event";
 import { contains, endswith, fullmatch, regex, startswith } from "./mw";

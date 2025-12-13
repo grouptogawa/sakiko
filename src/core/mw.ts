@@ -1,6 +1,6 @@
 import type { MatchContext, RegexContext } from "../core/context";
 import { type Messageable } from "../core/event";
-import type { UmiriEvent } from "@grouptogawa/umiri";
+import type { UmiriEvent } from "@togawa-dev/umiri";
 
 // 提供一些预置的 UmiriBus Handler 中间件构建器
 

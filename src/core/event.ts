@@ -1,5 +1,5 @@
 import type { SakikoBot } from "./bot";
-import { UmiriEvent } from "@grouptogawa/umiri";
+import { UmiriEvent } from "@togawa-dev/umiri";
 import { sf } from "../utils/snowflake";
 
 /**

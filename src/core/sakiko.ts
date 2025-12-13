@@ -3,7 +3,7 @@ import type { ISakikoPlugin } from "../plugin/interface";
 import type { MatcherBuilder } from "./matcher";
 import type { SakikoBot } from "./bot";
 import type { SakikoInit } from "../core/init";
-import { UmiriBus } from "@grouptogawa/umiri";
+import { UmiriBus } from "@togawa-dev/umiri";
 import chalk from "chalk";
 import { createDefaultLogger } from "../log/default";
 import { merge } from "../utils/merge";
@@ -177,7 +177,7 @@ ${chalk.hex("#7799CC")("█") + chalk.hex("#335566")("█") + chalk.hex("#BB9955
 ${chalk.reset(`A modular chatbot framework project for ${chalk.bold.underline("TypeScript")}`)}
 
 ${chalk.gray(`- For more information or documents about the project, see https://grouptogawa.github.io/togawa-docs/`)}
-${chalk.gray(`- @GroupTogawa 2025 | MIT License`)}
+${chalk.gray(`- @togawa-dev 2025 | MIT License`)}
     `
             );
             // 打印 ASCII 字符画

@@ -1,4 +1,4 @@
-import type { IHandlerContext } from "@grouptogawa/umiri";
+import type { IHandlerContext } from "@togawa-dev/umiri";
 
 export class SakikoContext implements IHandlerContext {
     [key: string]: any;
