@@ -1,6 +1,6 @@
+import type { IMatcherBuilder } from "./matcher";
 import type { ISakikoLogger } from "../log/interface";
 import type { ISakikoPlugin } from "../plugin/interface";
-import type { MatcherBuilder } from "./matcher";
 import type { SakikoBot } from "./bot";
 import type { SakikoInit } from "../core/init";
 import { UmiriBus } from "@togawa-dev/umiri";
@@ -13,31 +13,35 @@ import { merge } from "../utils/merge";
  *
  * sakiko 是一个模块化的聊天机器人框架，致力于简化在 TypeScript 中开发跨平台聊天机器人的流程。
  *
- * 你可以在 [Sakiko 的文档网站](https://grouptogawa.github.io/togawa-docs/) 上找到更多信息。
+ * 你可以在 [Sakiko 的文档网站](https://togawa-dev.github.io/docs/) 上找到更多信息。
  *
  * the core class of the Sakiko framework
  * 
  * sakiko is a modular chatbot framework that aims to simplify the process of developing cross-platform chatbots in TypeScript.
 
- * You can find more information on [the documentation site of Sakiko](https://grouptogawa.github.io/togawa-docs/).
+ * You can find more information on [the documentation site of Sakiko](https://togawa-dev.github.io/docs/).
  */
 export class Sakiko {
     protected readonly _name: string = "sakiko";
     protected readonly _displayName: string =
         "[" + chalk.green(this._name) + "]";
-    protected readonly _version: string = "0.4.9";
+    protected readonly _version: string = "0.5.0";
 
     private _logger?: ISakikoLogger;
     private _bus?: UmiriBus;
 
     private _config: object = {};
+
     private _inited: boolean = false;
+    private _runWithBlock: boolean = false;
 
     private _plugins: Set<ISakikoPlugin> = new Set();
     private _bots: Map<string, SakikoBot<any>> = new Map();
 
-    private _matchers: Map<MatcherBuilder<any, any, any>, (() => void) | null> =
-        new Map();
+    private _matchers: Map<
+        IMatcherBuilder<any, any, any>,
+        (() => void) | null
+    > = new Map();
 
     /**
      * 获取 Sakiko 中存储的日志记录器
@@ -176,7 +180,7 @@ export class Sakiko {
 ${chalk.hex("#7799CC")("█") + chalk.hex("#335566")("█") + chalk.hex("#BB9955")("█") + chalk.hex("#AA4477")("█") + chalk.hex("#779977")("█") + chalk.reset(chalk.bold(" Sakiko"), chalk.gray("v" + this._version))}
 ${chalk.reset(`A modular chatbot framework project for ${chalk.bold.underline("TypeScript")}`)}
 
-${chalk.gray(`- For more information or documents about the project, see https://grouptogawa.github.io/togawa-docs/`)}
+${chalk.gray(`- For more information or documents about the project, see https://togawa-dev.github.io/docs/`)}
 ${chalk.gray(`- @togawa-dev 2025 | MIT License`)}
     `
             );
@@ -200,13 +204,27 @@ ${chalk.gray(`- @togawa-dev 2025 | MIT License`)}
      * @param conf - 要添加的配置项 / the configuration items to add
      * @throws 如果 Sakiko 实例已经初始化则抛出错误 / throws an error if the Sakiko instance is already initialized
      */
-    withConfig<T extends object = object>(conf: T) {
+    withConfig<T extends readonly unknown[] | []>(...conf: T) {
         if (this._inited) {
             const e = new Error("cannot modify config after initialization.");
             this.getSakikoLogger().error(e);
             throw e;
         }
-        this._config = merge(this._config, conf);
+        // 检测传入的配置项是否为数组，如果不是则包装成数组
+        if (!Array.isArray(conf)) {
+            conf = [conf] as unknown as T;
+        }
+        // 合并所有传入的配置项到当前配置对象中
+        for (const c of conf) {
+            if (typeof c !== "object" || c === null) {
+                const e = new Error(
+                    "invalid config item, expected object but got " + typeof c
+                );
+                this.getSakikoLogger().error(e);
+                throw e;
+            }
+            this._config = merge(this._config, c);
+        }
     }
 
     private _overrideInitConfig(init?: SakikoInit) {
@@ -486,6 +504,7 @@ ${chalk.gray(`- @togawa-dev 2025 | MIT License`)}
      */
     async run() {
         let stopping = false;
+        this._runWithBlock = true; // 标记为阻塞运行模式
 
         const onSigint = async () => {
             if (stopping) return; // 阻止多次 stop
@@ -495,7 +514,7 @@ ${chalk.gray(`- @togawa-dev 2025 | MIT License`)}
                 "received sigint, starting shutdown..."
             );
             try {
-                await this.stop(); // 确认所有资源释放
+                await this.dispose(); // 确认所有资源释放
             } catch (err) {
                 this.getSakikoLogger().error("error during stop:", err);
             }
@@ -516,20 +535,11 @@ ${chalk.gray(`- @togawa-dev 2025 | MIT License`)}
     }
 
     /**
-     * 启动 Sakiko 实例（run() 的别名）
-     *
-     * start the Sakiko instance (alias)
-     */
-    async start() {
-        await this.run();
-    }
-
-    /**
      * 停止 Sakiko 实例，卸载所有已安装的插件
      *
      * stop the Sakiko instance and uninstall all installed plugins
      */
-    async stop() {
+    async dispose() {
         // 卸载全部已安装的插件
         for (const plugin of Array.from(this._plugins)) {
             await this.uninstall(plugin);
@@ -538,8 +548,10 @@ ${chalk.gray(`- @togawa-dev 2025 | MIT License`)}
         // 注销所有已注册的事件匹配器（以防出现插件未完全卸载导致的残留）
         this._unregisterMatchers();
 
-        // 发送 sigint 信号保证进程退出
-        process.kill(process.pid, "SIGINT");
+        if (this._runWithBlock) {
+            // 发送 sigint 信号保证进程退出
+            process.kill(process.pid, "SIGINT");
+        }
     }
 
     /**
@@ -550,7 +562,7 @@ ${chalk.gray(`- @togawa-dev 2025 | MIT License`)}
      * @param matcher - 要注册的事件匹配器 / the event matcher to register
      * @returns 注销该事件匹配器的函数 / the function to unregister the event matcher
      */
-    match(matcher: MatcherBuilder<any, any, any>) {
+    match(matcher: IMatcherBuilder<any, any, any>) {
         // 把 Matcher 存储到映射中，初始值为null
         this._matchers.set(matcher, null);
     }
@@ -562,7 +574,7 @@ ${chalk.gray(`- @togawa-dev 2025 | MIT License`)}
      *
      * @param matcher - 要注销的事件匹配器 / the event matcher to unregister
      */
-    unmatch(matcher: MatcherBuilder<any, any, any>) {
+    unmatch(matcher: IMatcherBuilder<any, any, any>) {
         const unregister = this._matchers.get(matcher);
         if (unregister) {
             unregister();
