@@ -1,0 +1,29 @@
+{
+    "name": "@togawa-dev/sakiko",
+    "description": "Simply a scalable chatbot framework, but stupidly usable.",
+    "version": "0.5.0",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/togawa-dev/sakiko.git"
+    },
+    "bugs": {
+        "url": "https://github.com/togawa-dev/sakiko/issues"
+    },
+    "main": "dist/index.cjs",
+    "module": "dist/index.js",
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "import": "./dist/index.js",
+            "require": "./dist/index.cjs"
+        },
+        "./package.json": "./package.json"
+    },
+    "files": [
+        "dist",
+        "README.md",
+        "LICENSE"
+    ],
+    "author": "machinacanis <machinacanis@outlook.com>"
+}

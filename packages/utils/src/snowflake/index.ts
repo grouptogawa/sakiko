@@ -1,8 +1,14 @@
-/**  雪花算法的配置项
- *
- * Snowflake algorithm configuration options
- */
-export interface SnowFlakeOptions {
+/*
+Utils: 雪花算法 ID 生成器 / Snowflake ID Generator
+
+[zh]
+一个简单的雪花算法 ID 生成器实现，用于生成分布式唯一标识符。
+
+[en]
+A simple implementation of the Snowflake ID generator for generating distributed unique identifiers.
+*/
+
+interface SnowFlakeOptions {
     epoch?: number;
     workerIdBits?: number;
     sequenceBits?: number;
@@ -83,8 +89,8 @@ export class SnowFlake {
 }
 
 /**
- * 默认的雪花算法实例，workerId 为 1
+ * 全局 SnowFlake 单例，方便直接调用
  *
- * Default Snowflake instance with workerId 1
+ * Global SnowFlake singleton for easy use
  */
-export const sf = new SnowFlake(1);
+export const snowflake = /*#__PURE__*/ new SnowFlake(1);

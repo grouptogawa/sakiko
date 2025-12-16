@@ -9,8 +9,7 @@
  * @param a
  * @param b
  * @returns 合并后的新对象 / the merged new object
- * @since 0.4.0
  */
 export function merge<T extends object, U extends object>(a: T, b: U): T & U {
-  return { ...a, ...b };
+    return { ...a, ...b };
 }

@@ -1,0 +1,40 @@
+{
+    "name": "@togawa-dev/utils",
+    "description": "Utility functions and types for Sakiko.",
+    "version": "1.0.0",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/togawa-dev/sakiko.git"
+    },
+    "bugs": {
+        "url": "https://github.com/togawa-dev/sakiko/issues"
+    },
+    "main": "dist/index.cjs",
+    "module": "dist/index.js",
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "import": "./dist/index.js",
+            "require": "./dist/index.cjs"
+        },
+        "./context": {
+            "types": "./dist/context/index.d.ts",
+            "import": "./dist/context/index.js",
+            "require": "./dist/context/index.cjs"
+        },
+        "./package.json": "./package.json"
+    },
+    "files": [
+        "dist",
+        "README.md",
+        "LICENSE"
+    ],
+    "author": "machinacanis <machinacanis@outlook.com>",
+    "sideEffects": false,
+    "scripts": {
+        "build": "tsup src/index.ts src/context/index.ts src/snowflake/index.ts --format esm,cjs --dts --out-dir dist --clean",
+        "clean": "rm -rf dist",
+        "prepublishOnly": "bun run build"
+    }
+}
