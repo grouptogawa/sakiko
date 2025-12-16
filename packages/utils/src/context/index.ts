@@ -15,6 +15,13 @@ In simple terms, the context information in this design is a shallow immutable r
 /** 上下文对象类型约束，任意只读对象 */
 export type Context<T extends object = {}> = Readonly<T>;
 
+/** 用于把联合类型转换为交叉类型的类型工具 */
+type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends (
+    k: infer I
+) => void
+    ? I
+    : never;
+
 /**
  * 创建一个不可变的上下文对象
  *
@@ -42,4 +49,22 @@ export function mergeContext<A extends object, B extends object>(
     b: Context<B>
 ): Context<A & B> {
     return Object.freeze({ ...a, ...b } as A & B) as Context<A & B>;
+}
+
+/**
+ * 合并多个上下文对象，返回一个新的不可变上下文对象
+ *
+ * Merges multiple context objects and returns a new immutable context object.
+ *
+ * @param ctx 基础上下文对象 / Base context object
+ * @param patches 需要合并的多个上下文对象 / Multiple context objects to be merged
+ * @returns 新的不可变上下文对象 / New immutable context object
+ */
+export function mergeMany<A extends object, P extends readonly object[]>(
+    ctx: Context<A>,
+    ...patches: P
+): Context<A & UnionToIntersection<P[number]>> {
+    return Object.freeze(Object.assign({}, ctx, ...patches)) as Context<
+        A & UnionToIntersection<P[number]>
+    >;
 }

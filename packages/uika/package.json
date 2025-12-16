@@ -25,5 +25,8 @@
         "README.md",
         "LICENSE"
     ],
-    "author": "machinacanis <machinacanis@outlook.com>"
+    "author": "machinacanis <machinacanis@outlook.com>",
+    "peerDependencies": {
+        "@togawa-dev/umiri": "workspace:^"
+    }
 }

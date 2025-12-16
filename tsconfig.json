@@ -2,8 +2,7 @@
     "extends": "./tsconfig.base",
     "compilerOptions": {
         "paths": {
-            "@togawa-dev/*": ["./packages/*/src"],
-            "*": ["./packages/*/src"]
+            "@togawa-dev/*": ["./packages/*/src"]
         }
     },
     "files": []

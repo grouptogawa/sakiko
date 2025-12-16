@@ -4,35 +4,27 @@ import { resolve } from "node:path";
 
 const pkg = JSON.parse(
     readFileSync(resolve(process.cwd(), "package.json"), "utf8")
-) as {
-    name: string;
-    version: string;
-    dependencies?: Record<string, string>;
-    peerDependencies?: Record<string, string>;
-};
-
-const external = [
-    ...Object.keys(pkg.dependencies ?? {}),
-    ...Object.keys(pkg.peerDependencies ?? {})
-];
+) as { name: string; version: string };
 
 export default defineConfig({
     entry: {
         index: "src/index.ts",
-        "context/index": "src/context/index.ts",
-        "snowflake/index": "src/snowflake/index.ts",
-        "mixin/index": "src/mixin/index.ts"
+        "v11/index": "src/v11/index.ts"
     },
-
     outDir: "dist",
     format: ["esm", "cjs"],
     dts: true,
     sourcemap: true,
     clean: true,
-
     treeshake: true,
     splitting: false,
-    bundle: false,
+    minify: false,
 
-    external
+    esbuildOptions(options) {
+        options.define = {
+            ...(options.define ?? {}),
+            __PKG_NAME__: JSON.stringify(pkg.name),
+            __VERSION__: JSON.stringify(pkg.version)
+        };
+    }
 });

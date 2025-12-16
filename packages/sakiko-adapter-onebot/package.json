@@ -1,7 +1,7 @@
 {
-    "name": "@togawa-dev/sakiko",
-    "description": "A local event bus implementation with priority and type support",
-    "version": "0.5.0",
+    "name": "@togawa-dev/sakiko-adapter-onebot",
+    "description": "",
+    "version": "1.0.0",
     "license": "MIT",
     "repository": {
         "type": "git",
@@ -18,6 +18,11 @@
             "import": "./dist/index.js",
             "require": "./dist/index.cjs"
         },
+        "./v11": {
+            "types": "./dist/v11/index.d.ts",
+            "import": "./dist/v11/index.js",
+            "require": "./dist/v11/index.cjs"
+        },
         "./package.json": "./package.json"
     },
     "files": [
@@ -26,13 +31,20 @@
         "LICENSE"
     ],
     "author": "machinacanis <machinacanis@outlook.com>",
-    "dependencies": {
-        "chalk": "^5.6.2",
-        "tslog": "^4.10.2"
-    },
+    "contributors": [
+        "MCredbear"
+    ],
     "peerDependencies": {
+        "chalk": "^5.6.2",
+        "@togawa-dev/sakiko": "workspace:^",
         "@togawa-dev/umiri": "workspace:^",
         "@togawa-dev/utils": "workspace:^"
+    },
+    "dependencies": {
+        "ws": "^8.18.3"
+    },
+    "devDependencies": {
+        "@types/ws": "^8.18.1"
     },
     "scripts": {
         "build": "tsup",

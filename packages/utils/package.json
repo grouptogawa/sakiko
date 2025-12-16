@@ -15,13 +15,23 @@
     "exports": {
         ".": {
             "types": "./dist/index.d.ts",
-            "import": "./dist/index.js",
+            "import": "./dist/index.mjs",
             "require": "./dist/index.cjs"
         },
         "./context": {
             "types": "./dist/context/index.d.ts",
-            "import": "./dist/context/index.js",
+            "import": "./dist/context/index.mjs",
             "require": "./dist/context/index.cjs"
+        },
+        "./snowflake": {
+            "types": "./dist/snowflake/index.d.ts",
+            "import": "./dist/snowflake/index.mjs",
+            "require": "./dist/snowflake/index.cjs"
+        },
+        "./mixin": {
+            "types": "./dist/mixin/index.d.ts",
+            "import": "./dist/mixin/index.mjs",
+            "require": "./dist/mixin/index.cjs"
         },
         "./package.json": "./package.json"
     },
@@ -33,7 +43,7 @@
     "author": "machinacanis <machinacanis@outlook.com>",
     "sideEffects": false,
     "scripts": {
-        "build": "tsup src/index.ts src/context/index.ts src/snowflake/index.ts --format esm,cjs --dts --out-dir dist --clean",
+        "build": "tsup",
         "clean": "rm -rf dist",
         "prepublishOnly": "bun run build"
     }

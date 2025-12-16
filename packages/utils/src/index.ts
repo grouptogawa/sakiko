@@ -13,3 +13,16 @@
 export function merge<T extends object, U extends object>(a: T, b: U): T & U {
     return { ...a, ...b };
 }
+
+/**
+ * 简单的日志记录器接口，定义了常用的日志级别方法。
+ *
+ * A simple logger interface that defines common log level methods.
+ */
+export type ILogger = {
+    trace(...args: any[]): void;
+    debug(...args: any[]): void;
+    info(...args: any[]): void;
+    warn(...args: any[]): void;
+    error(...args: any[]): void;
+};
