@@ -14,6 +14,72 @@
 
 > The Project Name `Sakiko` comes from the band _Ave Mujica_'s keyboardist **_豊川（とがわ） 祥子（さきこ）_** (Togawa **Sakiko** a.k.a _Oblivionis_) in the cross-media project _BanG Dream!_<br>
 
+## 快速开始
+
+请参考 [文档](https://togawa-dev.github.io/docs/) 以获取最新的快速开始指南。
+
+### 安装 / Installation
+
+```bash
+npm i @togawa-dev/sakiko
+```
+
+### 最小示例 / Minimal Example
+
+```typescript
+import { Sakiko } from "@togawa-dev/sakiko";
+import { fullMatch } from "@togawa-dev/uika/filter";
+
+const sakiko = new Sakiko();
+
+sakiko
+    .match(ExampleEvent)
+    .filter(fullMatch("foobar"))
+    .filter((ctx) => [mergeContext(ctx, { foo: "baz" }), true])
+    .handle(async (ctx) => {
+        ctx.bot.send(ctx.event, `Hello, World! And you merged ${ctx.foo}`);
+    })
+    .commit();
+
+sakiko.launch();
+
+// 其实你直接 launch() 也行，总之是跑起来了，虽然没什么用
+// well you can just launch(), as long as it runs, even though it has no usefulness at all
+```
+
+## 仓库结构 / Repository Structure
+
+这个工作区仓库负责维护以下的 npm 包：
+
+This workspace repository maintains the following npm packages:
+
+### `package/core` 框架核心包 / Core framework package
+
+| 包名 / Package       | 路径 / Path            | 备注/ Notes                                               |
+| -------------------- | ---------------------- | --------------------------------------------------------- |
+| `@togawa-dev/sakiko` | `packages/core/sakiko` | 框架核心实现 / Core framework implementation              |
+| `@togawa-dev/umiri`  | `packages/core/umiri`  | 本地事件总线实现 / Local event bus implementation         |
+| `@togawa-dev/uika`   | `packages/core/uika`   | 可选的高级功能扩展 / Optional advanced feature extensions |
+| `@togawa-dev/utils`  | `packages/core/utils`  | 内部工具库 / General utility library                      |
+
+### `package/protocol` 协议数据结构包 / Protocol data structure packages
+
+| 包名 / Package               | 路径 / Path               | 备注/ Notes                           |
+| ---------------------------- | ------------------------- | ------------------------------------- |
+| `@togawa-dev/protocol-milky` | `packages/protocol/milky` | milky 协议实现 / milky protocol impl. |
+
+### `package/adapter` 适配器实现包 / Adapter implementation packages
+
+| 包名 / Package              | 路径 / Path              | 备注/ Notes                            |
+| --------------------------- | ------------------------ | -------------------------------------- |
+| `@togawa-dev/adapter-milky` | `packages/adapter/milky` | milky 适配器实现 / milky adapter impl. |
+
+### `package/plugin` 插件实现包 / Plugin implementation packages
+
+| 包名 / Package            | 路径 / Path            | 备注/ Notes                            |
+| ------------------------- | ---------------------- | -------------------------------------- |
+| `@togawa-dev/plugin-echo` | `packages/plugin/echo` | echo 插件 / echo plugin implementation |
+
 ## 特性 / Features
 
 ### 开发者友好 / Developer Friendly
@@ -37,38 +103,6 @@ Sakiko does not use scaffolding tools to create projects. Instead, it prefers to
 Sakiko 用规模灵活的插件系统向框架组合扩展各种功能，插件可以小到只是做一点事件处理，也可以在框架中注入复杂的功能模块，同时允许进行无副作用的动态插拔，开发者可以根据自己的需求安装插件，也可以用插件系统组织自己的代码。
 
 Sakiko uses a scalable plugin system to extend various functionalities to the framework. Plugins can be as small as handling a single event or as complex as injecting intricate functional modules into the framework. It also allows for side-effect-free dynamic plugging and unplugging, enabling developers to install plugins based on their needs and organize their code using the plugin system.
-
-## 快速开始
-
-请参考 [文档](https://togawa-dev.github.io/docs/) 以获取最新的快速开始指南。
-
-### 安装 / Installation
-
-```bash
-npm i @togawa-dev/sakiko
-```
-
-### 最小示例 / Minimal Example
-
-```typescript
-import { sakiko } from "@togawa-dev/sakiko";
-import { fullMatch } from "@togawa-dev/uika/filter";
-
-sakiko
-    .match(ExampleEvent)
-    .withPriority(1)
-    .withFilter(fullMatch("foobar"))
-    .withFilter((ctx) => [mergeContext(ctx, { foo: "baz" }), true])
-    .run(async (ctx) => {
-        ctx.send(`Hello, World! And you merged ${ctx.foo}`);
-    })
-    .commit();
-
-sakiko.startWithBlock();
-
-// 其实你直接 startWithBlock() 也行，总之是跑起来了，虽然没什么用
-// well you can just startWithBlock(), as long as it runs, even though it has no usefulness at all
-```
 
 ## 开发进度 / Development Progress
 

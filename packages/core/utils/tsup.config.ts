@@ -20,7 +20,9 @@ export default defineConfig({
     entry: {
         index: "src/index.ts",
         "context/index": "src/context/index.ts",
-        "snowflake/index": "src/snowflake/index.ts"
+        "snowflake/index": "src/snowflake/index.ts",
+        "endpoint/index": "src/endpoint/index.ts",
+        "unimsg/index": "src/unimsg/index.ts"
     },
 
     outDir: "dist",

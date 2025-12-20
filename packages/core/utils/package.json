@@ -25,6 +25,14 @@
             "types": "./dist/snowflake/index.d.ts",
             "import": "./dist/snowflake/index.js"
         },
+        "./endpoint": {
+            "types": "./dist/endpoint/index.d.ts",
+            "import": "./dist/endpoint/index.js"
+        },
+        "./unimsg": {
+            "types": "./dist/unimsg/index.d.ts",
+            "import": "./dist/unimsg/index.js"
+        },
         "./package.json": "./package.json"
     },
     "files": [
@@ -38,5 +46,8 @@
         "build": "tsup",
         "clean": "rm -rf dist",
         "prepublishOnly": "bun run build"
+    },
+    "peerDependencies": {
+        "zod": "^4.2.1"
     }
 }

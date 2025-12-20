@@ -21,17 +21,9 @@
       "dependencies": {
         "chalk": "^5.6.2",
         "tslog": "^4.10.2",
+        "zod": "^4.2.1",
       },
       "peerDependencies": {
-        "@togawa-dev/umiri": "workspace:^",
-        "@togawa-dev/utils": "workspace:^",
-      },
-    },
-    "packages/core/testingcoding": {
-      "name": "@togawa-dev/uikaaaa",
-      "version": "1.0.0",
-      "peerDependencies": {
-        "@togawa-dev/sakiko": "workspace:^",
         "@togawa-dev/umiri": "workspace:^",
         "@togawa-dev/utils": "workspace:^",
       },
@@ -58,6 +50,26 @@
     "packages/core/utils": {
       "name": "@togawa-dev/utils",
       "version": "1.0.0",
+      "peerDependencies": {
+        "zod": "^4.2.1",
+      },
+    },
+    "packages/protocol/milky": {
+      "name": "@togawa-dev/protocol-milky",
+      "version": "1.0.0",
+      "peerDependencies": {
+        "@togawa-dev/sakiko": "workspace:^",
+        "@togawa-dev/umiri": "workspace:^",
+        "@togawa-dev/utils": "workspace:^",
+        "zod": "^4.2.1",
+      },
+    },
+    "test/test-bot": {
+      "name": "test-bot",
+      "version": "1.0.0",
+      "peerDependencies": {
+        "@togawa-dev/sakiko": "workspace:^",
+      },
     },
   },
   "packages": {
@@ -213,11 +225,11 @@
 
     "@rollup/rollup-win32-x64-msvc": ["@rollup/rollup-win32-x64-msvc@4.53.5", "", { "os": "win32", "cpu": "x64" }, "sha512-JRpZUhCfhZ4keB5v0fe02gQJy05GqboPOaxvjugW04RLSYYoB/9t2lx2u/tMs/Na/1NXfY8QYjgRljRpN+MjTQ=="],
 
+    "@togawa-dev/protocol-milky": ["@togawa-dev/protocol-milky@workspace:packages/protocol/milky"],
+
     "@togawa-dev/sakiko": ["@togawa-dev/sakiko@workspace:packages/core/sakiko"],
 
     "@togawa-dev/uika": ["@togawa-dev/uika@workspace:packages/core/uika"],
-
-    "@togawa-dev/uikaaaa": ["@togawa-dev/uikaaaa@workspace:packages/core/testingcoding"],
 
     "@togawa-dev/umiri": ["@togawa-dev/umiri@workspace:packages/core/umiri"],
 
@@ -433,6 +445,8 @@
 
     "term-size": ["term-size@2.2.1", "", {}, "sha512-wK0Ri4fOGjv/XPy8SBHZChl8CM7uMc5VML7SqiQ0zG7+J5Vr+RMQDoHa2CNT6KHUnTGIXH34UDMkPzAUyapBZg=="],
 
+    "test-bot": ["test-bot@workspace:test/test-bot"],
+
     "thenify": ["thenify@3.3.1", "", { "dependencies": { "any-promise": "^1.0.0" } }, "sha512-RVZSIV5IG10Hk3enotrhvz0T9em6cyHBLkH/YAZuKqd8hRkKhSfCGIcP2KUY0EPxndzANBmNllzWPwak+bheSw=="],
 
     "thenify-all": ["thenify-all@1.6.0", "", { "dependencies": { "thenify": ">= 3.1.0 < 4" } }, "sha512-RNxQH/qI8/t3thXJDwcstUO4zeqo64+Uy/+sNVRBx4Xn2OX+OZ9oP+iJnNFqplFra2ZUVeKCSa2oVWi3T4uVmA=="],
@@ -460,6 +474,8 @@
     "universalify": ["universalify@0.1.2", "", {}, "sha512-rBJeI5CXAlmy1pV+617WB9J63U6XcazHHF2f2dbJix4XzpUF0RS3Zbj0FGIOCAva5P/d/GBOYaACQ1w+0azUkg=="],
 
     "which": ["which@2.0.2", "", { "dependencies": { "isexe": "^2.0.0" }, "bin": { "node-which": "./bin/node-which" } }, "sha512-BLI3Tl1TW3Pvl70l3yq3Y64i+awpwXqsGBYWkkqMtnbXgrMD+yj7rhW0kuEDxzJaYXGjEW5ogapKNMEKNMjibA=="],
+
+    "zod": ["zod@4.2.1", "", {}, "sha512-0wZ1IRqGGhMP76gLqz8EyfBXKk0J2qo2+H3fi4mcUP/KtTocoX08nmIAHl1Z2kJIZbZee8KOpBCSNPRgauucjw=="],
 
     "@changesets/apply-release-plan/prettier": ["prettier@2.8.8", "", { "bin": { "prettier": "bin-prettier.js" } }, "sha512-tdN8qQGvNjw4CHbY+XXk0JgCXn9QiF21a55rBe5LJAU+kDyC4WQn4+awm2Xfk2lQMk5fKup9XgzTZtGkjBdP9Q=="],
 

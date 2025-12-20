@@ -17,7 +17,7 @@ export default defineConfig({
     clean: true,
     treeshake: true,
     splitting: false,
-    minify: true,
+    minify: false,
 
     esbuildOptions(options) {
         options.define = {

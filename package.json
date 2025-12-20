@@ -7,7 +7,10 @@
     "workspaces": [
         "packages/core/*",
         "packages/adapter/*",
-        "packages/plugin/*"
+        "packages/plugin/*",
+        "packages/protocol/*",
+        "bench/*",
+        "test/*"
     ],
     "devDependencies": {
         "@changesets/cli": "^2.29.8",
