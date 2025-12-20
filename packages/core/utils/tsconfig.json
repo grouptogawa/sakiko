@@ -1,0 +1,11 @@
+{
+    "extends": "../../../tsconfig.base",
+    "compilerOptions": {
+        "rootDir": "src",
+        "outDir": "dist",
+        "paths": {
+            "@togawa-dev/utils": ["./src"]
+        }
+    },
+    "include": ["src"]
+}

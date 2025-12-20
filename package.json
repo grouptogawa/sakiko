@@ -5,17 +5,19 @@
     "private": true,
     "type": "module",
     "workspaces": [
-        "packages/*"
+        "packages/core/*",
+        "packages/adapter/*",
+        "packages/plugin/*"
     ],
     "devDependencies": {
         "@changesets/cli": "^2.29.8",
-        "@types/bun": "^1.3.4",
-        "@types/node": "^24.10.3",
+        "@types/bun": "^1.3.5",
+        "@types/node": "^24.10.4",
         "prettier": "^3.7.4",
         "tsup": "^8.5.1"
     },
     "peerDependencies": {
-        "typescript": "^5"
+        "typescript": "^5.9.3"
     },
     "scripts": {
         "check": "bun run typecheck && bun run lint",
@@ -23,8 +25,8 @@
         "deps:install": "bun install",
         "deps:update": "bun update -r",
         "deps:update:latest": "bun update -r --latest",
-        "build:topo": "bun run ./scripts/run-workspace-topo.ts build",
-        "clean:topo": "bun run ./scripts/run-workspace-topo.ts clean",
+        "build:topo": "bun run ./script/run-workspace-topo.ts build",
+        "clean:topo": "bun run ./script/run-workspace-topo.ts clean",
         "build": "bun run --filter './packages/*' build",
         "clean": "bun run --filter './packages/*' clean",
         "changeset": "bunx changeset",

@@ -2,7 +2,11 @@
     "extends": "./tsconfig.base",
     "compilerOptions": {
         "paths": {
-            "@togawa-dev/*": ["./packages/*/src"]
+            // Core Packages
+            "@togawa-dev/utils": ["./packages/core/utils/src"],
+            "@togawa-dev/umiri": ["./packages/core/umiri/src"],
+            "@togawa-dev/sakiko": ["./packages/core/sakiko/src"],
+            "@togawa-dev/uika": ["./packages/core/uika/src"]
         }
     },
     "files": []
