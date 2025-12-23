@@ -1,6 +1,6 @@
 import type { UmiriBot } from "@togawa-dev/umiri";
 import type { MessageArray } from "@togawa-dev/utils/unimsg";
-import type { Contactable } from "../mixin/mixin";
+import type { HasContactId } from "../mixin/event";
 import type { Sakiko } from "./sakiko";
 import {
     ProtocolBotConnected,
@@ -15,12 +15,6 @@ import type {
     APIRes
 } from "@togawa-dev/utils/endpoint";
 
-/* API 端点数据结构定义 / API endpoint data structure definition */
-export type APIEndpoint<Req = unknown, Res = unknown> = {
-    req: Req;
-    res: Res;
-};
-
 /** 用于和协议实现进行通讯的机器人接口 / Protocol Bot Interface */
 export type ProtocolBot<M extends APIMap> = UmiriBot & {
     get platform(): string;
@@ -31,8 +25,7 @@ export type ProtocolBot<M extends APIMap> = UmiriBot & {
         data?: APIReq<M, Endpoint>
     ): Promise<APIRes<M, Endpoint>>;
 
-    send(target: string, ...msg: MessageArray): Promise<boolean>;
-    send(contact: Contactable, ...msg: MessageArray): Promise<boolean>;
+    send(target: string | HasContactId, ...msg: MessageArray): Promise<boolean>;
 };
 
 export class ProtocolBotManager extends Map<string, ProtocolBot<any>> {

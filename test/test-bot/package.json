@@ -18,6 +18,7 @@
         "LICENSE"
     ],
     "peerDependencies": {
-        "@togawa-dev/sakiko": "workspace:^"
+        "@togawa-dev/sakiko": "workspace:^",
+        "@togawa-dev/adapter-milky": "workspace:^"
     }
 }

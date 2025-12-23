@@ -17,9 +17,13 @@
             "types": "./dist/index.d.ts",
             "import": "./dist/index.js"
         },
-        "./mixin": {
-            "types": "./dist/mixin.d.ts",
-            "import": "./dist/mixin.js"
+        "./mixin/event": {
+            "types": "./dist/mixin/event.d.ts",
+            "import": "./dist/mixin/event.js"
+        },
+        "./mixin/message": {
+            "types": "./dist/mixin/message.d.ts",
+            "import": "./dist/mixin/message.js"
         },
         "./package.json": "./package.json"
     },

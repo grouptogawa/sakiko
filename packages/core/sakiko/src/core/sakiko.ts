@@ -35,6 +35,7 @@ export class Sakiko<Config extends SakikoConfig = SakikoConfig> {
 
     public readonly bots = new ProtocolBotManager(this);
     public readonly plugins = new PluginManager(this);
+    public readonly _plugins_load_on_startup: Set<SakikoPlugin> = new Set();
 
     constructor(conf?: Config) {
         this._config = conf || ({} as Config);
@@ -137,11 +138,21 @@ export class Sakiko<Config extends SakikoConfig = SakikoConfig> {
     }
 
     load(plugin: SakikoPlugin) {
-        this.plugins.load(plugin);
+        if (this._started) {
+            this.plugins.load(plugin);
+        } else {
+            this._plugins_load_on_startup.add(plugin);
+        }
     }
 
     unload(pluginName: string) {
-        this.plugins.unload(pluginName);
+        if (!this._started) {
+            this.plugins.unload(pluginName);
+        } else {
+            this.frameworkLogger.warn(
+                `cannot unload plugin ${pluginName} before sakiko started`
+            );
+        }
     }
 
     async launch() {
@@ -187,6 +198,12 @@ export class Sakiko<Config extends SakikoConfig = SakikoConfig> {
         // 设置事件总线的启动状态
         this.bus.startHandling();
         this.frameworkLogger.debug("event bus has been started");
+
+        // 加载在启动前注册的插件
+        for (const plugin of this._plugins_load_on_startup) {
+            this.plugins.load(plugin);
+        }
+        this._plugins_load_on_startup.clear();
 
         // 调用插件管理器的启动流程
         const startupSuccess = await this.plugins._runStartUp();

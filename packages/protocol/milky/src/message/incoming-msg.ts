@@ -1,20 +1,20 @@
-import * as incomming from "./incomming-segment";
+import * as incoming from "./incoming-segment";
 
 import type { Message, UniSegment } from "@togawa-dev/utils/unimsg";
 
-import type { IncommingSegment } from "./incomming-segment";
+import type { IncomingSegment } from "./incoming-segment";
 import { UniMessage } from "@togawa-dev/utils/unimsg";
 
-export class MilkyIncommingMessage
-    extends Array<IncommingSegment>
-    implements Message<IncommingSegment>
+export class MilkyIncomingMessage
+    extends Array<IncomingSegment>
+    implements Message<IncomingSegment>
 {
-    constructor(...segments: IncommingSegment[]) {
+    constructor(...segments: IncomingSegment[]) {
         super(...segments);
     }
 
-    update(...segments: IncommingSegment[]): MilkyIncommingMessage {
-        return new MilkyIncommingMessage(...this, ...segments);
+    update(...segments: IncomingSegment[]): MilkyIncomingMessage {
+        return new MilkyIncomingMessage(...this, ...segments);
     }
 
     plain(): string {
@@ -48,36 +48,36 @@ export class MilkyIncommingMessage
         });
     }
 
-    text(...contents: unknown[]): MilkyIncommingMessage {
+    text(...contents: unknown[]): MilkyIncomingMessage {
         const text = contents.map((t) => String(t)).join("");
         return this.update({
             type: "text",
             data: { text }
-        } as incomming.Text);
+        } as incoming.Text);
     }
 
-    mention(userId: string | number | bigint): MilkyIncommingMessage {
+    mention(userId: string | number | bigint): MilkyIncomingMessage {
         return this.update({
             type: "mention",
             data: { user_id: BigInt(userId) }
-        } as incomming.Mention);
+        } as incoming.Mention);
     }
 
-    mentionAll(): MilkyIncommingMessage {
+    mentionAll(): MilkyIncomingMessage {
         return this.update({
             type: "mention_all",
             data: {}
-        } as incomming.MentionAll);
+        } as incoming.MentionAll);
     }
 
-    reply(messageSeq: string | number | bigint): MilkyIncommingMessage {
+    reply(messageSeq: string | number | bigint): MilkyIncomingMessage {
         return this.update({
             type: "reply",
             data: { message_seq: BigInt(messageSeq) }
-        } as incomming.Reply);
+        } as incoming.Reply);
     }
 
-    quote(messageSeq: string | number | bigint): MilkyIncommingMessage {
+    quote(messageSeq: string | number | bigint): MilkyIncomingMessage {
         return this.reply(messageSeq);
     }
 
@@ -88,7 +88,7 @@ export class MilkyIncommingMessage
         height: number,
         summary: string,
         subType: string
-    ): MilkyIncommingMessage {
+    ): MilkyIncomingMessage {
         return this.update({
             type: "image",
             data: {
@@ -99,14 +99,14 @@ export class MilkyIncommingMessage
                 summary: summary,
                 sub_type: subType
             }
-        } as incomming.Image);
+        } as incoming.Image);
     }
 
     record(
         resourceId: string,
         tempUrl: string,
         duration: number
-    ): MilkyIncommingMessage {
+    ): MilkyIncomingMessage {
         return this.update({
             type: "record",
             data: {
@@ -114,14 +114,14 @@ export class MilkyIncommingMessage
                 temp_url: tempUrl,
                 duration: duration
             }
-        } as incomming.Record);
+        } as incoming.Record);
     }
 
     audio(
         resourceId: string,
         tempUrl: string,
         duration: number
-    ): MilkyIncommingMessage {
+    ): MilkyIncomingMessage {
         return this.record(resourceId, tempUrl, duration);
     }
 
@@ -131,7 +131,7 @@ export class MilkyIncommingMessage
         width: number,
         height: number,
         duration: number
-    ): MilkyIncommingMessage {
+    ): MilkyIncomingMessage {
         return this.update({
             type: "video",
             data: {
@@ -141,7 +141,7 @@ export class MilkyIncommingMessage
                 height: height,
                 duration: duration
             }
-        } as incomming.Video);
+        } as incoming.Video);
     }
 
     file(
@@ -149,7 +149,7 @@ export class MilkyIncommingMessage
         fileName: string,
         fileSize: number | bigint,
         fileHash: string
-    ): MilkyIncommingMessage {
+    ): MilkyIncomingMessage {
         return this.update({
             type: "file",
             data: {
@@ -158,48 +158,48 @@ export class MilkyIncommingMessage
                 file_size: BigInt(fileSize),
                 file_hash: fileHash
             }
-        } as incomming.File);
+        } as incoming.File);
     }
 
-    face(faceId: number | string): MilkyIncommingMessage {
+    face(faceId: number | string): MilkyIncomingMessage {
         return this.update({
             type: "face",
             data: { face_id: String(faceId) }
-        } as incomming.Face);
+        } as incoming.Face);
     }
 
-    forward(forwardId: string): MilkyIncommingMessage {
+    forward(forwardId: string): MilkyIncomingMessage {
         return this.update({
             type: "forward",
             data: { forward_id: forwardId }
-        } as incomming.Forward);
+        } as incoming.Forward);
     }
 
-    market_face(url: string): MilkyIncommingMessage {
+    market_face(url: string): MilkyIncomingMessage {
         return this.update({
             type: "market_face",
             data: { url: url }
-        } as incomming.MarketFace);
+        } as incoming.MarketFace);
     }
 
-    lightApp(appName: string, jsonPayload: string): MilkyIncommingMessage {
+    lightApp(appName: string, jsonPayload: string): MilkyIncomingMessage {
         return this.update({
             type: "light_app",
             data: {
                 app_name: appName,
                 json_payload: jsonPayload
             }
-        } as incomming.LightApp);
+        } as incoming.LightApp);
     }
 
-    xml(serviceId: number | string, xmlPayload: string): MilkyIncommingMessage {
+    xml(serviceId: number | string, xmlPayload: string): MilkyIncomingMessage {
         return this.update({
             type: "xml",
             data: {
                 service_id: Number(serviceId),
                 xml_payload: xmlPayload
             }
-        } as incomming.Xml);
+        } as incoming.Xml);
     }
 
     toUniMessage(): UniMessage {

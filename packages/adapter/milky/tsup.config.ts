@@ -8,10 +8,7 @@ const pkg = JSON.parse(
 
 export default defineConfig({
     entry: {
-        index: "src/index.ts",
-        "message/index": "src/message/index.ts",
-        "payload/api/index": "src/payload/api/index.ts",
-        "payload/event/index": "src/payload/event/index.ts"
+        index: "src/index.ts"
     },
     outDir: "dist",
     format: ["esm"],

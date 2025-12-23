@@ -9,7 +9,8 @@ const pkg = JSON.parse(
 export default defineConfig({
     entry: {
         index: "src/index.ts",
-        mixin: "src/mixin/mixin.ts"
+        "mixin/event": "src/mixin/event.ts",
+        "mixin/message": "src/mixin/message.ts"
     },
     outDir: "dist",
     format: ["esm"],

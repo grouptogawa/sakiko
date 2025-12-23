@@ -205,7 +205,7 @@ export type Xml = z.infer<typeof XmlSchema> & UniSegment.UniSegmentLike;
 /**
  * 消息段 Schema 联合类型 / Message Segment Schema Union
  */
-export const IncommingSegmentSchema = z.discriminatedUnion("type", [
+export const IncomingSegmentSchema = z.discriminatedUnion("type", [
     TextSchema,
     MentionSchema,
     MentionAllSchema,
@@ -221,5 +221,5 @@ export const IncommingSegmentSchema = z.discriminatedUnion("type", [
     XmlSchema
 ]);
 
-export type IncommingSegment = z.infer<typeof IncommingSegmentSchema> &
+export type IncomingSegment = z.infer<typeof IncomingSegmentSchema> &
     UniSegment.UniSegmentLike;

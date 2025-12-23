@@ -6,7 +6,7 @@ import type {
 import type { UmiriContext, UmiriEventMiddleware } from "@togawa-dev/umiri";
 
 import { importOptionalDependency } from "../internal/optional-dep";
-import { isPlainable } from "@togawa-dev/sakiko/mixin";
+import { isPlainable } from "@togawa-dev/sakiko/mixin/event";
 import { mergeContext } from "@togawa-dev/utils/context";
 
 // 让 gemini 改了一遍，导致我自己都有点认不出来这里写的东西具体干了什么了
@@ -69,7 +69,7 @@ async function executeFuzzy(
     const { default: Fuse } = await getFuseJS();
 
     // 获取消息文本
-    const text = ctx.event.plain;
+    const text = ctx.event.getPlaintext();
 
     // 实例创建
     const fuse = new Fuse([{ text }], {

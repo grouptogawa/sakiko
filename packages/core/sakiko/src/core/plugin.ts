@@ -9,6 +9,8 @@ import type {
 import type { ILogger } from "@togawa-dev/utils";
 import { MatcherBuilderWithIns, type MatcherBuilder } from "./matcher";
 import type { Sakiko } from "./sakiko";
+import chalk from "chalk";
+import type { SakikoConfig } from "./config";
 
 /**
  * Sakiko 插件类型定义
@@ -28,6 +30,8 @@ export type SakikoPlugin = {
     getMatchers?(): UmiriEventMatcher<any, any>[];
     // 可选的设置日志实例方法
     setLogger?(logger: ILogger): void;
+    // 可选的设置配置方法
+    setConfig?(config: SakikoConfig): void;
 
     // 可选实现的生命周期钩子
     onLoad?(sakiko: Sakiko): Promise<void | boolean>;
@@ -52,12 +56,7 @@ export type SakikoAdapter = SakikoPlugin & {
  * Determine whether an object is a Sakiko plugin
  */
 export function isSakikoPlugin(obj: any): obj is SakikoPlugin {
-    return (
-        obj &&
-        typeof obj.pluginId === "string" &&
-        typeof obj.onLoad === "function" &&
-        typeof obj.onUnload === "function"
-    );
+    return obj && typeof obj.pluginId === "string";
 }
 
 /**
@@ -81,7 +80,9 @@ export class PluginManager extends Map<string, SakikoPlugin> {
 
     constructor(private _sakiko: Sakiko) {
         super();
-        this._logger = this._sakiko.getNamedLogger("plugin-manager");
+        this._logger = this._sakiko.getNamedLogger(
+            chalk.blue("plugin-manager")
+        );
     }
 
     async load(plugin: SakikoPlugin) {
@@ -120,9 +121,14 @@ export class PluginManager extends Map<string, SakikoPlugin> {
         if (typeof plugin.setLogger === "function") {
             plugin.setLogger(
                 this._sakiko.getNamedLogger(
-                    `${plugin.pluginDisplayName || plugin.pluginId}` // 如果没有定义显示名称则使用 ID 作为名称
+                    chalk.green(plugin.pluginDisplayName || plugin.pluginId) // 如果没有定义显示名称则使用 ID 作为名称
                 )
             );
+        }
+
+        // 检查插件是否实现了注入配置的方法
+        if (typeof plugin.setConfig === "function") {
+            plugin.setConfig(this._sakiko.config);
         }
 
         // 调用插件的加载钩子
@@ -149,6 +155,8 @@ export class PluginManager extends Map<string, SakikoPlugin> {
         this._registerPluginMatchers(plugin);
 
         this.set(plugin.pluginId, plugin);
+
+        this._logger.info(`loaded plugin ${plugin.pluginId}`);
     }
 
     async unload(pluginId: string) {
@@ -194,6 +202,8 @@ export class PluginManager extends Map<string, SakikoPlugin> {
 
         // 从插件管理器中移除这个插件
         this.delete(pluginId);
+
+        this._logger.info(`unloaded plugin ${pluginId}`);
     }
 
     private _registerPluginMatchers(plugin: SakikoPlugin) {

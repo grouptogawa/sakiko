@@ -7,7 +7,7 @@ import type {
 } from "./context";
 import type { UmiriContext, UmiriEventMiddleware } from "@togawa-dev/umiri";
 
-import { isPlainable } from "@togawa-dev/sakiko/mixin";
+import { isPlainable } from "@togawa-dev/sakiko/mixin/event";
 import { mergeContext } from "@togawa-dev/utils/context";
 
 export function startsWith<Context extends UmiriContext<any, any>>(
@@ -26,8 +26,8 @@ export function startsWith<Context extends UmiriContext<any, any>>(
         }
 
         const message = caseSensitive
-            ? ctx.event.plain
-            : ctx.event.plain.toLowerCase();
+            ? ctx.event.getPlaintext()
+            : ctx.event.getPlaintext().toLowerCase();
 
         const texts = Array.isArray(text) ? text : [text];
         for (let t of texts) {
@@ -57,8 +57,8 @@ export function endsWith<Context extends UmiriContext<any, any>>(
         }
 
         const message = caseSensitive
-            ? ctx.event.plain
-            : ctx.event.plain.toLowerCase();
+            ? ctx.event.getPlaintext()
+            : ctx.event.getPlaintext().toLowerCase();
 
         const texts = Array.isArray(text) ? text : [text];
         for (let t of texts) {
@@ -94,8 +94,8 @@ export function fullMatch<Context extends UmiriContext<any, any>>(
         }
 
         const message = caseSensitive
-            ? ctx.event.plain
-            : ctx.event.plain.toLowerCase();
+            ? ctx.event.getPlaintext()
+            : ctx.event.getPlaintext().toLowerCase();
 
         const texts = Array.isArray(text) ? text : [text];
         for (let t of texts) {
@@ -125,8 +125,8 @@ export function contains<Context extends UmiriContext<any, any>>(
         }
 
         const msg = ignoreCase
-            ? ctx.event.plain.toLowerCase()
-            : ctx.event.plain;
+            ? ctx.event.getPlaintext().toLowerCase()
+            : ctx.event.getPlaintext();
 
         const texts = Array.isArray(text) ? text : [text];
         for (let t of texts) {
@@ -156,7 +156,7 @@ export function regex<Context extends UmiriContext<any, any>>(
             return [ctx as Readonly<Context> & Partial<RegexContext>, false];
         }
 
-        const msg = ctx.event.plain;
+        const msg = ctx.event.getPlaintext();
         const match = msg.match(pattern);
         if (!match) {
             return [ctx as Readonly<Context> & Partial<RegexContext>, false];

@@ -3,7 +3,6 @@ import type { UmiriEvent, UmiriEventConstructor } from "./event";
 
 import type { ILogger } from "@togawa-dev/utils";
 import type { SnowFlake } from "@togawa-dev/utils/snowflake";
-import type { UmiriBot } from "./bot";
 import type { UmiriEventMatcher } from "./matcher";
 import { createUmiriContext } from "./context";
 
