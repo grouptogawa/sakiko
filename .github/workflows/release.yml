@@ -47,6 +47,12 @@ jobs:
             - name: Build all packages (topological order)
               run: bun run build:topo
 
+            - name: Setup npm authentication
+              run: |
+                  echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
+              env:
+                  NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
             - name: Commit version changes
               if: steps.check.outputs.has_changesets == 'true'
               run: |
