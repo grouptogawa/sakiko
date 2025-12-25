@@ -6,7 +6,7 @@ import { z } from "zod"; // 假设使用标准 zod 或兼容的 zod-mini
 export const UniSegmentSchema = z
     .object({
         type: z.string(),
-        data: z.record(z.any(), z.any())
+        data: z.record(z.string(), z.any())
     })
     .loose();
 
@@ -88,7 +88,7 @@ export const OtherSchema = z.object({
     type: z.literal("other"),
     data: z.object({
         originalType: z.string(),
-        originalData: z.record(z.any(), z.any())
+        originalData: z.record(z.string(), z.any())
     })
 });
 

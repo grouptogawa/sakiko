@@ -54,7 +54,7 @@ export function validateRequest<M extends APIMap, A extends APIAction<M>>(
         return schema.parse(data) as APIReq<M, A>;
     } catch (e: any) {
         throw new Error(
-            `invalid response data for ${String(action)}: ${e?.message ?? String(e)}`
+            `invalid request data for ${String(action)}: ${e?.message ?? String(e)}`
         );
     }
 }

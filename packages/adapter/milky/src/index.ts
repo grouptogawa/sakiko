@@ -195,10 +195,11 @@ export class Milky implements SakikoAdapter {
         for (const serverOption of serverArray) {
             switch (serverOption.mode) {
                 case "ws":
-                    this.logger.error("WebSocket mode is not supported yet");
-                    return;
+                    await this.createWebSocketClient(serverOption, accessToken);
+                    break;
                 case "sse":
                     await this.createSSEClient(serverOption, accessToken);
+                    break;
             }
         }
     }
@@ -331,8 +332,8 @@ export class Milky implements SakikoAdapter {
 
                         bot = new MilkyBot(adapter, {
                             _selfId: String(result.data.self_id),
-                            _apiBaseUrl: option.eventBaseUrl
-                                ? new URL(option.eventBaseUrl)
+                            _apiBaseUrl: option.apiBaseUrl
+                                ? new URL(option.apiBaseUrl)
                                 : new URL("/api", new URL(option.baseUrl)),
                             _accessToken: accessCode
                         });

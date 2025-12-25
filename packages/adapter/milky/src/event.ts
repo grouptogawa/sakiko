@@ -401,11 +401,6 @@ export class FriendFileUpload
     getFileHash(): string {
         return this.data.file_hash;
     }
-
-    async save(): Promise<boolean> {
-        // TODO: 实现好友文件保存逻辑
-        throw "Not implemented";
-    }
 }
 
 /** 群管理员变更事件
@@ -771,11 +766,6 @@ export class GroupFileUpload
 
     getFileSize(): number {
         return this.data.file_size;
-    }
-
-    async save(): Promise<boolean> {
-        // TODO: 实现群文件保存逻辑
-        throw "Not implemented";
     }
 }
 

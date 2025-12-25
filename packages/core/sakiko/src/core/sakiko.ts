@@ -98,9 +98,14 @@ export class Sakiko<Config extends SakikoConfig = SakikoConfig> {
         if (this._logger) {
             return this._logger;
         }
-        this._logger = createDefaultLogger(
-            normalizeLogLevel(this._config.logLevel)
-        );
+        // 使用配置中的日志记录器，或者创建默认日志记录器
+        if (this._config.logger) {
+            this._logger = this._config.logger;
+        } else {
+            this._logger = createDefaultLogger(
+                normalizeLogLevel(this._config.logLevel)
+            );
+        }
         return this._logger;
     }
 
@@ -225,7 +230,7 @@ export class Sakiko<Config extends SakikoConfig = SakikoConfig> {
      * @param pluginName 插件名称 / Plugin name
      */
     unload(pluginName: string) {
-        if (!this._started) {
+        if (this._started) {
             this.plugins.unload(pluginName);
         } else {
             this.frameworkLogger.warn(
