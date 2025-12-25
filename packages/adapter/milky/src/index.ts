@@ -10,8 +10,11 @@ import type { ILogger } from "@togawa-dev/utils";
 import { MilkyBot } from "./bot";
 import { MilkyEventPayloadSchema } from "@togawa-dev/protocol-milky/payload/event";
 import { VERSION } from "./global";
+import { WebSocket } from "ws";
 import { createEvent } from "./event";
 import { z } from "zod";
+
+export * from "./event"; // 导出事件
 
 export const baseUrlOptionSchema = z.object({
     /** Milky 服务器的基础 URL，用于构建 API 和事件的完整 URL 地址。
@@ -77,27 +80,7 @@ export const milkyOptionSchema = z.object({
             reconnectInterval: 10000,
             maxReconnectAttempts: -1
         }),
-    /** 是否启用 EventHook 功能，用于接收 Milky 服务器推送的事件。
-     *
-     * Whether to enable the EventHook feature for receiving events pushed by the Milky server.
-     *
-     * @default false
-     */
-    enableEventHook: z.boolean().optional().default(false),
-    /** EventHook 服务器的主机地址。
-     *
-     * The host address of the EventHook server.
-     *
-     * @default "127.0.0.1"
-     */
-    eventHookHost: z.string().optional().default("127.0.0.1"),
-    /** EventHook 服务器的端口号。
-     *
-     * The port number of the EventHook server.
-     *
-     * @default 8080
-     */
-    eventHookPort: z.number().optional().default(8080),
+
     /** 和 Milky 服务器通信时使用的访问令牌。
      *
      * The access token used for communication with the Milky server.
@@ -117,6 +100,11 @@ declare module "@togawa-dev/sakiko" {
     }
 }
 
+/**
+ * Sakiko 的 Milky 协议适配器
+ *
+ * The Milky protocol adapter for Sakiko
+ */
 export class Milky implements SakikoAdapter {
     readonly pluginId = "adapter-milky";
     readonly pluginDisplayName = "adapter-milky";
@@ -130,6 +118,7 @@ export class Milky implements SakikoAdapter {
 
     private _logger?: ILogger;
 
+    /** 获取适配器的日志记录器 / Get the logger for the adapter */
     get logger() {
         if (!this._logger) {
             throw new Error("logger has not been set for this plugin");
@@ -139,6 +128,7 @@ export class Milky implements SakikoAdapter {
 
     private _config?: SakikoConfig;
 
+    /** 获取框架传入的配置项 / Get the configuration options from the framework */
     get config() {
         if (!this._config) {
             throw new Error("config has not been set for this plugin");
@@ -148,6 +138,7 @@ export class Milky implements SakikoAdapter {
 
     private _sakiko?: Sakiko;
 
+    /** 获取框架实例 / Get the framework instance */
     get sakiko() {
         if (!this._sakiko) {
             throw new Error("sakiko has not been injected for this plugin");
@@ -160,22 +151,27 @@ export class Milky implements SakikoAdapter {
     // WebSocket 连接清理处理器
     private _wsCleanupHandlers: Array<() => void> = [];
 
+    /** 设置日志记录器 / Set the logger for the adapter */
     setLogger(logger: ILogger): void {
         this._logger = logger;
     }
 
+    /** 设置配置项 / Set the configuration options for the adapter */
     setConfig(config: SakikoConfig): void {
         this._config = config;
     }
 
+    /** 在适配器加载时执行的逻辑 / Logic to be executed when the adapter is loaded */
     async onLoad(sakiko: Sakiko): Promise<void | boolean> {
         // 在适配器加载时执行的逻辑
         this._sakiko = sakiko;
     }
 
+    /** 在适配器启动时执行的逻辑 / Logic to be executed when the adapter is started */
     async onStartUp(): Promise<void | boolean> {
         // 检查是否注入了milky的配置
         if (!this.config.milky) {
+            // 一般来讲不会到这里，但是为了保险起见留这里了
             this.logger.warn(
                 "milky config is not provided, abort starting milky adapter"
             );
@@ -185,16 +181,8 @@ export class Milky implements SakikoAdapter {
         // 解析配置项
         const parsedConfig = milkyOptionSchema.parse(this.config.milky);
 
-        this.logger.debug(JSON.stringify(parsedConfig, null, 2));
-
         // 根据配置项启动对应类型的服务
-        const {
-            server,
-            enableEventHook,
-            eventHookHost,
-            eventHookPort,
-            accessToken
-        } = parsedConfig;
+        const { server, accessToken } = parsedConfig;
 
         // 如果 server 不是数组，则包装成数组
         const serverArray = Array.isArray(server) ? server : [server];
@@ -215,9 +203,10 @@ export class Milky implements SakikoAdapter {
         }
     }
 
+    /** 在适配器关闭时执行的逻辑 / Logic to be executed when the adapter is closed */
     async onShutDown(): Promise<void> {
-        this.logger.info(
-            "Shutting down Milky adapter, closing all SSE connections..."
+        this.logger.debug(
+            "shutting down milky adapter, closing all SSE connections..."
         );
 
         // 执行所有 SSE 连接的清理函数
@@ -231,9 +220,10 @@ export class Milky implements SakikoAdapter {
 
         // 清空清理处理器数组
         this._sseCleanupHandlers = [];
-        this.logger.info("All SSE connections closed");
+        this.logger.debug("all SSE connections closed");
     }
 
+    /** 创建一个 SSE 客户端 / Create an SSE client */
     async createSSEClient(option: baseUrlOptionParsed, accessCode?: string) {
         const eventUrl = option.eventBaseUrl
             ? new URL(option.eventBaseUrl)
@@ -247,13 +237,6 @@ export class Milky implements SakikoAdapter {
         let isManualClose = false;
         let currentEventSource: EventSource | null = null;
 
-        // 懒实例化bot
-        const getBot = async (selfId: string) => {
-            if (bot) {
-                return bot;
-            }
-        };
-
         // 清理
         const cleanup = () => {
             isManualClose = true; // 标记为手动关闭，阻止重连
@@ -262,6 +245,11 @@ export class Milky implements SakikoAdapter {
             if (reconnectTimer) {
                 clearTimeout(reconnectTimer);
                 reconnectTimer = null;
+            }
+
+            // 清除对应的bot实例
+            if (bot) {
+                this.sakiko.bots.remove(bot.selfId, "connection closed");
             }
 
             // 关闭 EventSource 连接
@@ -294,8 +282,7 @@ export class Milky implements SakikoAdapter {
                 if (accessCode) {
                     headers.set("Authorization", `Bearer ${accessCode}`);
                 }
-                // 使用 globalThis.fetch 确保 Node.js 和 Bun 中都能正确访问
-                return globalThis.fetch(url, {
+                return fetch(url, {
                     ...init,
                     headers
                 });
@@ -310,8 +297,8 @@ export class Milky implements SakikoAdapter {
 
             es.onopen = () => {
                 reconnectCount = 0; // 重置重连计数器
-                adapter.logger.info(
-                    `SSE connection established for Milky server at ${eventUrl.toString()}`
+                adapter.logger.debug(
+                    `SSE connection established for milky server at ${eventUrl.toString()}`
                 );
             };
 
@@ -320,7 +307,7 @@ export class Milky implements SakikoAdapter {
                 try {
                     raw = JSON.parse(event.data);
                 } catch (e) {
-                    console.error(
+                    this.logger.error(
                         "JSON parse failed:",
                         e,
                         "raw data:",
@@ -328,15 +315,16 @@ export class Milky implements SakikoAdapter {
                     );
                     return;
                 }
-                console.log(raw);
                 // 验证事件数据
                 const result = MilkyEventPayloadSchema.safeParse(raw);
-                console.log(result.error);
                 if (result.success) {
                     // 事件数据有效，可以创建事件
                     if (bot) {
                         const e = createEvent(result.data, bot);
-                        console.log(e?.payload);
+                        if (e) {
+                            adapter.sakiko.bus.publish(e);
+                        }
+                        // 如果接受到了数据但是没有成功解析出事件，那么默认为是心跳包或者其它无关紧要的数据，不做处理
                     } else {
                         // 这个连接对应的机器人实例还没有被创建
                         // 当前连接的机器人实例没有被初始化
@@ -356,18 +344,20 @@ export class Milky implements SakikoAdapter {
                         );
 
                         // 将机器人实例的引用挂到框架上
-                        this.sakiko.bots.set(
-                            String(result.data.self_id),
-                            bot as ProtocolBot<any>
-                        );
+                        this.sakiko.bots.add(bot as ProtocolBot<any>);
+
+                        const e = createEvent(result.data, bot);
+                        if (e) {
+                            adapter.sakiko.bus.publish(e);
+                        }
                     }
                 }
             };
 
             es.onerror = (err) => {
                 adapter.logger.error(
-                    `SSE connection error for Milky server at ${eventUrl.toString()}:`,
-                    err
+                    `SSE connection error for milky server at ${eventUrl.toString()}:`,
+                    err.message
                 );
 
                 // 关闭当前连接
@@ -410,6 +400,163 @@ export class Milky implements SakikoAdapter {
         };
 
         // 启动第一轮连接
+        createConnection();
+    }
+
+    /** 创建一个 WebSocket 客户端 / Create a WebSocket client */
+    async createWebSocketClient(
+        option: baseUrlOptionParsed,
+        accessCode?: string
+    ) {
+        // 大部分实现都跟 SSE 客户端差不多，就是换成了 WebSocket
+        // 所以我就不写注释了，本来也是让 LLM 帮我 copy 的
+        const eventUrl = option.eventBaseUrl
+            ? new URL(option.eventBaseUrl)
+            : new URL("/event", new URL(option.baseUrl));
+
+        eventUrl.protocol = eventUrl.protocol.replace(/^http/, "ws"); // 如果是 http 协议起始则替换为 ws 协议
+
+        const adapter = this;
+
+        let bot: MilkyBot | undefined = undefined;
+        let reconnectCount = 0;
+        let reconnectTimer: Timer | null = null;
+        let isManualClose = false;
+        let currentWebSocket: WebSocket | null = null;
+
+        const cleanup = () => {
+            isManualClose = true;
+
+            if (reconnectTimer) {
+                clearTimeout(reconnectTimer);
+                reconnectTimer = null;
+            }
+
+            if (bot) {
+                this.sakiko.bots.remove(bot.selfId, "connection closed");
+            }
+
+            if (currentWebSocket) {
+                currentWebSocket.close();
+                currentWebSocket = null;
+            }
+
+            adapter.logger.debug(
+                `websocket connection cleanup completed for ${eventUrl.toString()}`
+            );
+        };
+
+        this._wsCleanupHandlers.push(cleanup);
+
+        const createConnection = () => {
+            if (isManualClose) {
+                return;
+            }
+
+            const headers: Record<string, string> = {};
+            if (accessCode) {
+                headers["Authorization"] = `Bearer ${accessCode}`;
+            }
+
+            const ws = new WebSocket(eventUrl.toString(), {
+                headers
+            });
+
+            currentWebSocket = ws;
+
+            ws.on("open", () => {
+                reconnectCount = 0;
+                adapter.logger.debug(
+                    `websocket connection established for milky server at ${eventUrl.toString()}`
+                );
+            });
+
+            ws.on("message", async (data: Buffer) => {
+                let raw: unknown;
+                try {
+                    raw = JSON.parse(data.toString());
+                } catch (e) {
+                    adapter.logger.error(
+                        "JSON parse failed:",
+                        e,
+                        "raw data:",
+                        data.toString()
+                    );
+                    return;
+                }
+
+                const result = MilkyEventPayloadSchema.safeParse(raw);
+                if (result.success) {
+                    if (bot) {
+                        const e = createEvent(result.data, bot);
+                        if (e) {
+                            adapter.sakiko.bus.publish(e);
+                        }
+                    } else {
+                        bot = new MilkyBot(adapter, {
+                            _selfId: String(result.data.self_id),
+                            _apiBaseUrl: option.apiBaseUrl
+                                ? new URL(option.apiBaseUrl)
+                                : new URL("/api", new URL(option.baseUrl)),
+                            _accessToken: accessCode
+                        });
+
+                        await bot.init();
+
+                        adapter.logger.debug(
+                            `created milky bot instance for selfId ${result.data.self_id}`
+                        );
+
+                        adapter.sakiko.bots.add(bot as ProtocolBot<any>);
+
+                        const e = createEvent(result.data, bot);
+                        if (e) {
+                            adapter.sakiko.bus.publish(e);
+                        }
+                    }
+                }
+            });
+
+            ws.on("error", (err) => {
+                adapter.logger.error(
+                    `websocket connection error for milky server at ${eventUrl.toString()}:`,
+                    err.message
+                );
+            });
+
+            ws.on("close", () => {
+                if (isManualClose) {
+                    return;
+                }
+
+                const shouldReconnect =
+                    option.reconnectInterval > 0 &&
+                    (option.maxReconnectAttempts === -1 ||
+                        reconnectCount < option.maxReconnectAttempts);
+
+                if (shouldReconnect) {
+                    reconnectCount++;
+                    adapter.logger.warn(
+                        `attempting to reconnect to websocket server (${reconnectCount}${option.maxReconnectAttempts === -1 ? "" : `/${option.maxReconnectAttempts}`})...`
+                    );
+
+                    if (reconnectTimer) {
+                        clearTimeout(reconnectTimer);
+                    }
+
+                    reconnectTimer = setTimeout(() => {
+                        createConnection();
+                    }, option.reconnectInterval);
+                } else {
+                    adapter.logger.error(
+                        `failed to connect to websocket server after ${reconnectCount} attempts. giving up.`
+                    );
+                }
+            });
+
+            return ws;
+        };
+
         createConnection();
     }
 }

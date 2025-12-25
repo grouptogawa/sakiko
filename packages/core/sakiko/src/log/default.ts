@@ -4,7 +4,6 @@ import chalk from "chalk";
 
 // Sakiko 默认使用基于 tslog 实现的终端日志记录器。
 // 默认的日志记录器实现仅提供了基础的日志记录功能，用户可以通过实现 ISakikoLogger 接口来自定义日志记录器。
-// 或者你也可以选择使用 @togawa-dev/anon 包中提供的可选的 Winston 日志记录器实现。
 
 const customLogLevelNames: Record<number, string> = {
     0: "SILLY",

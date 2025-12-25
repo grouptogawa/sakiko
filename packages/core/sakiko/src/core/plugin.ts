@@ -73,6 +73,9 @@ export function isSakikoAdapter(obj: any): obj is SakikoAdapter {
     );
 }
 
+/**
+ * 插件管理器 / Plugin manager
+ */
 export class PluginManager extends Map<string, SakikoPlugin> {
     private _logger: ILogger;
 
@@ -83,6 +86,10 @@ export class PluginManager extends Map<string, SakikoPlugin> {
         );
     }
 
+    /**
+     * 加载插件 / Load plugin
+     * @param plugin 插件实例 / Plugin instance
+     */
     async load(plugin: SakikoPlugin) {
         // 对插件实例进行类型检查
         if (!isSakikoPlugin(plugin)) {
@@ -93,7 +100,7 @@ export class PluginManager extends Map<string, SakikoPlugin> {
         // 检查插件是否已存在
         if (this.has(plugin.pluginId)) {
             const e = new Error(
-                `plugin with id ${plugin.pluginId} is already loaded`
+                `plugin with id ${chalk.magenta(plugin.pluginId)} is already loaded`
             );
             this._logger.error(e);
             throw e;
@@ -106,7 +113,7 @@ export class PluginManager extends Map<string, SakikoPlugin> {
             );
             if (!hasDependencies) {
                 const e = new Error(
-                    `missing dependencies for plugin ${plugin.pluginId}: ${plugin.pluginDependencies.join(
+                    `missing dependencies for plugin ${chalk.magenta(plugin.pluginId)}: ${plugin.pluginDependencies.join(
                         ", "
                     )}`
                 );
@@ -119,7 +126,7 @@ export class PluginManager extends Map<string, SakikoPlugin> {
         if (typeof plugin.setLogger === "function") {
             plugin.setLogger(
                 this._sakiko.getNamedLogger(
-                    chalk.green(plugin.pluginDisplayName || plugin.pluginId) // 如果没有定义显示名称则使用 ID 作为名称
+                    chalk.magenta(plugin.pluginDisplayName || plugin.pluginId) // 如果没有定义显示名称则使用 ID 作为名称
                 )
             );
         }
@@ -134,7 +141,7 @@ export class PluginManager extends Map<string, SakikoPlugin> {
             const loadResult = await plugin.onLoad(this._sakiko);
             if (loadResult === false) {
                 this._logger.warn(
-                    `plugin ${plugin.pluginId}'s "onLoad" hook returned false, aborting load`
+                    `plugin ${chalk.magenta(plugin.pluginId)}'s "onLoad" hook returned false, aborting load`
                 );
                 // 加载被插件的 onLoad 钩子截断，跳过这个插件的加载
                 return;
@@ -146,9 +153,15 @@ export class PluginManager extends Map<string, SakikoPlugin> {
 
         this.set(plugin.pluginId, plugin);
 
-        this._logger.info(`loaded plugin ${plugin.pluginId}`);
+        this._logger.info(
+            `loaded plugin ${chalk.magenta(plugin.pluginId)} ${chalk.greenBright("v" + (plugin.pluginVersion || "0.0.0"))}`
+        );
     }
 
+    /**
+     * 卸载插件 / Unload plugin
+     * @param pluginId 插件 ID / Plugin ID
+     */
     async unload(pluginId: string) {
         const plugin = this.get(pluginId);
         if (!plugin) {
@@ -166,7 +179,7 @@ export class PluginManager extends Map<string, SakikoPlugin> {
         );
         if (dependentPlugins.length > 0) {
             const e = new Error(
-                `cannot unload plugin ${pluginId} because other plugins depend on it: ${dependentPlugins
+                `cannot unload plugin ${chalk.magenta(plugin.pluginId)} because other plugins depend on it: ${dependentPlugins
                     .map((p) => p.pluginId)
                     .join(", ")}`
             );
@@ -188,6 +201,10 @@ export class PluginManager extends Map<string, SakikoPlugin> {
         this._logger.info(`unloaded plugin ${pluginId}`);
     }
 
+    /**
+     * 注册插件的事件匹配器 / Register plugin matchers
+     * @param plugin 插件实例 / Plugin instance
+     */
     private _registerPluginMatchers(plugin: SakikoPlugin) {
         const matchers = plugin.getMatchers?.();
         if (!(matchers && Array.isArray(matchers))) {
@@ -197,10 +214,14 @@ export class PluginManager extends Map<string, SakikoPlugin> {
         this._sakiko.bus.register(...matchers);
 
         this._logger.debug(
-            `registered ${matchers.length} matchers from plugin ${plugin.pluginId}`
+            `registered ${matchers.length} matchers from plugin ${chalk.magenta(plugin.pluginId)}`
         );
     }
 
+    /**
+     * 注销插件的事件匹配器 / Unregister plugin matchers
+     * @param plugin 插件实例 / Plugin instance
+     */
     private _unregisterPluginMatchers(plugin: SakikoPlugin) {
         const matchers = plugin.getMatchers?.();
         if (!(matchers && Array.isArray(matchers))) {
@@ -210,10 +231,13 @@ export class PluginManager extends Map<string, SakikoPlugin> {
         this._sakiko.bus.unregister(...matchers);
 
         this._logger.debug(
-            `unregistered ${matchers.length} matchers from plugin ${plugin.pluginId}`
+            `unregistered ${matchers.length} matchers from plugin ${chalk.magenta(plugin.pluginId)}`
         );
     }
 
+    /**
+     * 运行插件的启动钩子 / Run plugin startup hooks
+     */
     async _runStartUp() {
         this._logger.debug("running startup hooks...");
         for (const plugin of this.values()) {
@@ -221,7 +245,7 @@ export class PluginManager extends Map<string, SakikoPlugin> {
                 const result = await plugin.onStartUp();
                 if (result === false) {
                     this._logger.warn(
-                        `plugin ${plugin.pluginId} aborted startup, unloading`
+                        `plugin ${chalk.magenta(plugin.pluginId)} aborted startup, unloading`
                     );
                     await this.unload(plugin.pluginId);
                 }
@@ -229,6 +253,9 @@ export class PluginManager extends Map<string, SakikoPlugin> {
         }
     }
 
+    /**
+     * 运行插件的关闭钩子 / Run plugin shutdown hooks
+     */
     async _runShutDown() {
         this._logger.debug("running shutdown hooks...");
         for (const plugin of this.values()) {
@@ -244,6 +271,9 @@ export class PluginManager extends Map<string, SakikoPlugin> {
     }
 }
 
+/**
+ * 构建可插拔插件 / Build a plugin that can be plugged in
+ */
 export class buildablePlugin implements SakikoPlugin {
     readonly pluginId: string;
     readonly pluginDisplayName?: string;
@@ -342,8 +372,12 @@ export class buildablePlugin implements SakikoPlugin {
     }
 }
 
+/**
+ * 构建插件 / Build plugin
+ * @param pluginId 插件 ID / Plugin ID
+ * @returns 插件构建器 / Plugin builder
+ */
 export function buildPlugin(pluginId: string) {
-    // 使用闭包保存内部状态，不把这些字段挂到返回对象上（外部无法访问/修改）
     const _pluginId = pluginId;
     let _pluginDisplayName: string | undefined;
     let _pluginVersion: string | undefined;
@@ -360,50 +394,109 @@ export function buildPlugin(pluginId: string) {
     let _onShutDownFn: (() => Promise<void>) | undefined;
 
     return {
+        /**
+         * 设置插件显示名称 / Set plugin display name
+         * @param name 显示名称 / Display name
+         * @returns 插件构建器 / Plugin builder
+         */
         displayName(name: string) {
             _pluginDisplayName = name;
             return this;
         },
+        /**
+         * 设置插件版本 / Set plugin version
+         * @param version 版本号 / Version number
+         * @returns 插件构建器 / Plugin builder
+         */
         version(version: string) {
             _pluginVersion = version;
             return this;
         },
+        /**
+         * 设置插件描述 / Set plugin description
+         * @param description 描述 / Description
+         * @returns 插件构建器 / Plugin builder
+         */
         description(description: string) {
             _pluginDescription = description;
             return this;
         },
+        /**
+         * 设置插件作者 / Set plugin author
+         * @param author 作者 / Author
+         * @returns 插件构建器 / Plugin builder
+         */
         author(author: string) {
             _pluginAuthor = author;
             return this;
         },
+        /**
+         * 设置插件依赖 / Set plugin dependencies
+         * @param deps 依赖列表 / List of dependencies
+         * @returns 插件构建器 / Plugin builder
+         */
         dependencies(...deps: string[]) {
             _pluginDependencies = deps;
             return this;
         },
+        /**
+         * 设置插件平台名称 / Set plugin platform name
+         * @param name 平台名称 / Platform name
+         * @returns 插件构建器 / Plugin builder
+         */
         platform(name: string) {
             _platformName = name;
             return this;
         },
+        /**
+         * 设置插件协议名称 / Set plugin protocol name
+         * @param name 协议名称 / Protocol name
+         * @returns 插件构建器 / Plugin builder
+         */
         protocol(name: string) {
             _protocolName = name;
             return this;
         },
+        /**
+         * 设置插件加载时执行的函数 / Set function to execute when plugin loads
+         * @param fn 加载时执行的函数 / Function to execute when plugin loads
+         * @returns 插件构建器 / Plugin builder
+         */
         onLoad(fn: (sakiko: Sakiko) => Promise<void | boolean>) {
             _onLoadFn = fn;
             return this;
         },
+        /**
+         * 设置插件卸载时执行的函数 / Set function to execute when plugin unloads
+         * @param fn 卸载时执行的函数 / Function to execute when plugin unloads
+         * @returns 插件构建器 / Plugin builder
+         */
         onUnload(fn: (sakiko: Sakiko) => Promise<void>) {
             _onUnloadFn = fn;
             return this;
         },
+        /**
+         * 设置插件启动时执行的函数 / Set function to execute when plugin starts
+         * @param fn 启动时执行的函数 / Function to execute when plugin starts
+         * @returns 插件构建器 / Plugin builder
+         */
         onStartUp(fn: () => Promise<void | boolean>) {
             _onStartUpFn = fn;
             return this;
         },
+        /**
+         * 设置插件关闭时执行的函数 / Set function to execute when plugin shuts down
+         * @param fn 关闭时执行的函数 / Function to execute when plugin shuts down
+         * @returns 插件构建器 / Plugin builder
+         */
         onShutDown(fn: () => Promise<void>) {
             _onShutDownFn = fn;
             return this;
         },
+        /**
+         * 构建插件 / Build plugin
+         * @returns 插件 / Plugin
+         */
         build() {
             return new buildablePlugin({
                 pluginId: _pluginId,

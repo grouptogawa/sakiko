@@ -43,6 +43,7 @@
         "prepublishOnly": "bun run build"
     },
     "devDependencies": {
-        "@types/eventsource": "^3.0.0"
+        "@types/eventsource": "^3.0.0",
+        "@types/ws": "^8.18.1"
     }
 }

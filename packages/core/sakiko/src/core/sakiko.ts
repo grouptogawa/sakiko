@@ -20,6 +20,9 @@ import { Umiri } from "@togawa-dev/umiri";
 import chalk from "chalk";
 import { merge } from "@togawa-dev/utils";
 
+/**
+ * Sakiko 核心类 / Sakiko core class
+ */
 export class Sakiko<Config extends SakikoConfig = SakikoConfig> {
     // 一些生命周期标志量
     private _started = false;
@@ -33,34 +36,64 @@ export class Sakiko<Config extends SakikoConfig = SakikoConfig> {
 
     private _config: Config = {} as Config;
 
+    /**
+     * 机器人实例管理器 / Bot instance manager
+     */
     public readonly bots = new ProtocolBotManager(this);
+    /**
+     * 插件管理器 / Plugin manager
+     */
     public readonly plugins = new PluginManager(this);
-    public readonly _plugins_load_on_startup: Set<SakikoPlugin> = new Set();
+
+    private readonly _plugins_load_on_startup: Set<SakikoPlugin> = new Set();
 
     constructor(conf?: Config) {
         this._config = conf || ({} as Config);
         // 初始化事件总线
-        this._bus = new Umiri(this.snowflake, this.getNamedLogger("umiri"));
+        this._bus = new Umiri(
+            this.snowflake,
+            this.getNamedLogger(chalk.cyanBright("umiri"))
+        );
 
         return this as unknown as Sakiko<Config>; // 强制逆变
     }
 
+    /**
+     * 获取框架版本号 / Get framework version
+     * @returns 版本号 / Version number
+     */
     static get version() {
         return VERSION;
     }
 
+    /**
+     * 获取框架包名 / Get framework package name
+     * @returns 包名 / Package name
+     */
     static get pkgName() {
         return PKG_NAME;
     }
 
+    /**
+     * 获取框架版本号 / Get framework version
+     * @returns 版本号 / Version number
+     */
     get version() {
         return VERSION;
     }
 
+    /**
+     * 获取框架包名 / Get framework package name
+     * @returns 包名 / Package name
+     */
     get pkgName() {
         return PKG_NAME;
     }
 
+    /**
+     * 获取日志记录器 / Get logger
+     * @returns 日志记录器 / Logger
+     */
     get logger() {
         if (this._logger) {
             return this._logger;
@@ -71,6 +104,11 @@ export class Sakiko<Config extends SakikoConfig = SakikoConfig> {
         return this._logger;
     }
 
+    /**
+     * 获取命名日志记录器 / Get named logger
+     * @param name 日志记录器名称 / Logger name
+     * @returns 日志记录器 / Logger
+     */
     getNamedLogger(name: string): ILogger {
         return {
             trace: (...args: any[]) => this.logger.trace(`${name}`, ...args),
@@ -81,14 +119,26 @@ export class Sakiko<Config extends SakikoConfig = SakikoConfig> {
         };
     }
 
+    /**
+     * 获取框架内部的日志记录器 / Get framework logger
+     * @returns 日志记录器 / Logger
+     */
     private get frameworkLogger() {
         return this.getNamedLogger(chalk.rgb(119, 153, 204)("framework"));
     }
 
+    /**
+     * 获取当前配置 / Get current config
+     * @returns 配置对象 / Config object
+     */
     get config() {
         return Object.freeze({ ...this._config });
     }
 
+    /**
+     * 获取事件总线实例 / Get event bus instance
+     * @returns 事件总线实例 / Event bus instance
+     */
     get bus() {
         if (this._bus) {
             return this._bus;
@@ -98,6 +148,10 @@ export class Sakiko<Config extends SakikoConfig = SakikoConfig> {
         throw e;
     }
 
+    /**
+     * 获取 Snowflake 实例 / Get Snowflake instance
+     * @returns Snowflake 实例 / Snowflake instance
+     */
     get snowflake() {
         if (this._snowflake) {
             return this._snowflake;
@@ -108,6 +162,10 @@ export class Sakiko<Config extends SakikoConfig = SakikoConfig> {
         return this._snowflake;
     }
 
+    /**
+     * 定义配置 / Define config
+     * @param conf 配置对象 / Config object
+     */
     defineConfig<NewConfig extends SakikoConfig>(conf: NewConfig) {
         if (this._started) {
             const e = new Error("cannot redefine config after sakiko started");
@@ -117,10 +175,19 @@ export class Sakiko<Config extends SakikoConfig = SakikoConfig> {
         this._config = { ...this._config, ...conf };
     }
 
+    /**
+     * 合并配置 / Merge config
+     * @param conf 配置对象 / Config object
+     */
     mergeConfig(conf: object) {
         this._config = merge(this._config, conf);
     }
 
+    /**
+     * 创建事件匹配器构建器 / Create event matcher builder
+     * @param ets 事件构造器数组 / Array of event constructors
+     * @returns 事件匹配器构建器 / Event matcher builder
+     */
     match<Events extends UmiriEvent<any, any>[]>(
         ...ets: { [K in keyof Events]: UmiriEventConstructor<Events[K]> }
     ): MatcherBuilderWithIns<
@@ -133,10 +200,18 @@ export class Sakiko<Config extends SakikoConfig = SakikoConfig> {
         return new MatcherBuilderWithIns<Bot, Events, Ctx>(this, ets);
     }
 
+    /**
+     * 提交事件匹配器 / Commit event matchers
+     * @param matchers 事件匹配器数组 / Array of event matchers
+     */
     commit(...matchers: UmiriEventMatcher<any, any>[]) {
         this.bus.register(...matchers);
     }
 
+    /**
+     * 加载插件 / Load plugin
+     * @param plugin 插件实例 / Plugin instance
+     */
     load(plugin: SakikoPlugin) {
         if (this._started) {
             this.plugins.load(plugin);
@@ -145,6 +220,10 @@ export class Sakiko<Config extends SakikoConfig = SakikoConfig> {
         }
     }
 
+    /**
+     * 卸载插件 / Unload plugin
+     * @param pluginName 插件名称 / Plugin name
+     */
     unload(pluginName: string) {
         if (!this._started) {
             this.plugins.unload(pluginName);
@@ -155,6 +234,9 @@ export class Sakiko<Config extends SakikoConfig = SakikoConfig> {
         }
     }
 
+    /**
+     * 启动 Sakiko 框架 / Launch Sakiko framework
+     */
     async launch() {
         let stopping = false;
         this._withBlock = true; // 标记为阻塞启动
@@ -183,6 +265,9 @@ export class Sakiko<Config extends SakikoConfig = SakikoConfig> {
         await new Promise(() => {}); // 永远 pending，直到 SIGINT 导致 exit
     }
 
+    /**
+     * 启动 Sakiko 框架（非阻塞）/ Launch Sakiko framework (non-blocking)
+     */
     async launchWithoutBlock() {
         // 标识框架进入启动状态
         this._started = true;
@@ -191,6 +276,12 @@ export class Sakiko<Config extends SakikoConfig = SakikoConfig> {
         console.log(info);
 
         this.frameworkLogger.info("starting sakiko...");
+
+        // 输出当前的配置内容
+        this.frameworkLogger.debug(
+            "with config:",
+            JSON.stringify(this.config, null, 0)
+        );
 
         // 计时计算整个启动流程花费的时间
         const startTime = Date.now();
@@ -205,7 +296,7 @@ export class Sakiko<Config extends SakikoConfig = SakikoConfig> {
         }
         this._plugins_load_on_startup.clear();
 
-        this.frameworkLogger.info("plugins have been loaded");
+        this.frameworkLogger.info("pre-installed plugins have been loaded");
 
         // 调用插件管理器的启动流程
         await this.plugins._runStartUp();
@@ -213,11 +304,19 @@ export class Sakiko<Config extends SakikoConfig = SakikoConfig> {
         // 启动完成，输出完成信息
         const endTime = Date.now();
         const duration = endTime - startTime;
+
+        this.frameworkLogger.info(
+            `registered ${this.bus.getTotalRegisteredMatcherCount()} matchers on ${this.bus.getTotalRegisteredPriorityCount()} priorities, with ${this.bus.getTotalRegisteredEventTypeCount()} event types`
+        );
+
         this.frameworkLogger.info(
             `done. (took ${chalk.yellowBright(duration + "ms")})`
         );
     }
 
+    /**
+     * 释放资源 / Dispose resources
+     */
     async dispose() {
         // 调用插件管理器的清理流程
         await this.plugins._runShutDown();

@@ -8,6 +8,9 @@ import type {
     UmiriEventMiddleware
 } from "@togawa-dev/umiri";
 
+/**
+ * 匹配器构建器 / Matcher builder
+ */
 export class MatcherBuilder<
     Bot extends UmiriBot,
     Events extends UmiriEvent<any, Bot>[],
@@ -51,6 +54,9 @@ export class MatcherBuilder<
     }
 }
 
+/**
+ * 匹配器构建器（带实例方法）/ Matcher builder (with instance methods)
+ */
 export class MatcherBuilderWithIns<
     Bot extends UmiriBot,
     Events extends UmiriEvent<any, Bot>[],

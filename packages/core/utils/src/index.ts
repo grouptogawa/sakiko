@@ -39,35 +39,3 @@ export type ILogger = {
 export function sleep(ms: number) {
     return new Promise((resolve) => setTimeout(resolve, ms));
 }
-
-// 很显然，相当大一部分的情况下，userId 不一定是 int64 的范围，json 解析时会自动把它变成 number，而 number 只到int32的范围
-// 所以需要定义一个可以自动处理 number 的 int64 类型
-
-/**
- * 能够自动处理 number 的 int64 类型
- *
- * A Zod schema for int64 that can automatically handle number.
- */
-export const int64WithNumber = z.preprocess((value) => {
-    // 处理 number
-    if (typeof value === "number") {
-        console.log("进入类型升级流程");
-
-        if (!Number.isInteger(value)) {
-            return value; // 让后面的 z.int64() 报错
-        }
-
-        const INT32_MIN = -2147483648;
-        const INT32_MAX = 2147483647;
-        if (value < INT32_MIN || value > INT32_MAX) {
-            // 超出 int32 范围时，不做转换，让 z.int64() 去报错
-            console.log("超出 int32 范围");
-            return value;
-        }
-
-        // 在 int32 范围内，转换为 BigInt
-        return BigInt(value);
-    }
-
-    return value;
-}, z.int64());

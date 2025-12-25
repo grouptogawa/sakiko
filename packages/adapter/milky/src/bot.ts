@@ -63,6 +63,8 @@ export class MilkyBot implements ProtocolBot<MilkyAPIMap> {
         endpoint: Endpoint,
         data?: APIReq<MilkyAPIMap, Endpoint>
     ): Promise<APIRes<MilkyAPIMap, Endpoint>> {
+        this._logger?.debug(`calling API endpoint: ${endpoint}`);
+
         // 验证请求数据是否符合 schema
         // 如果不符合则会在这里抛出异常
         try {
@@ -77,19 +79,19 @@ export class MilkyBot implements ProtocolBot<MilkyAPIMap> {
         }
 
         // 向 API 服务发送请求
-        const result = await fetch(
-            new URL(endpoint, this._options._apiBaseUrl),
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: this._options._accessToken
-                        ? `Bearer ${this._options._accessToken}`
-                        : ""
-                },
-                body: JSON.stringify(data)
-            }
-        );
+        const url = new URL(this._options._apiBaseUrl);
+        url.pathname = url.pathname.replace(/\/?$/, "/") + endpoint;
+
+        const result = await fetch(url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: this._options._accessToken
+                    ? `Bearer ${this._options._accessToken}`
+                    : ""
+            },
+            body: JSON.stringify(data)
+        });
 
         // 处理响应
         if (!result.ok) {
@@ -108,7 +110,11 @@ export class MilkyBot implements ProtocolBot<MilkyAPIMap> {
         };
 
         // 对响应数据进行检查和断言
-        if (!(resp.status && resp.retcode && resp.data)) {
+        if (
+            resp.status === undefined ||
+            resp.retcode === undefined ||
+            resp.data === undefined
+        ) {
             const e = new Error(
                 `API response from endpoint ${endpoint} is malformed`
             );

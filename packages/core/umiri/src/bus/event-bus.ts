@@ -151,9 +151,9 @@ export class Umiri {
 
         // 遍历每个优先级，从高到低处理事件
         for (const priority of priorities) {
-            this.logger.debug(`collecting matchers on priority ${priority}`);
-
             if (blocked) break; // 如果被阻塞，跳出循环
+
+            this.logger.debug(`collecting matchers on priority ${priority}`);
 
             const priorityMap = this.matchersMap.get(priority); // 获取对应优先级的匹配器映射
             if (!priorityMap) continue; // 这个优先级没有任何注册，跳过
@@ -230,9 +230,7 @@ export class Umiri {
             });
 
             // 并发执行所有任务
-            this.logger.debug(
-                `handling ${tasks.length} matchers on priority ${priority}`
-            );
+            this.logger.debug(`handling priority ${priority}`);
             await Promise.all(tasks.map((t) => t()));
         }
 
