@@ -11,7 +11,7 @@ import type { UmiriBot } from "./bot";
  *
  * @template Payload 事件负载数据类型 / Event payload data type
  */
-export class UmiriEvent<Payload, Bot extends UmiriBot> {
+export abstract class UmiriEvent<Payload, Bot extends UmiriBot> {
     constructor(
         protected readonly _payload: Payload,
         protected readonly _bot: Bot

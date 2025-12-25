@@ -201,19 +201,14 @@ export class Sakiko<Config extends SakikoConfig = SakikoConfig> {
 
         // 加载在启动前注册的插件
         for (const plugin of this._plugins_load_on_startup) {
-            this.plugins.load(plugin);
+            await this.plugins.load(plugin);
         }
         this._plugins_load_on_startup.clear();
 
+        this.frameworkLogger.info("plugins have been loaded");
+
         // 调用插件管理器的启动流程
-        const startupSuccess = await this.plugins._runStartUp();
-        if (!startupSuccess) {
-            // 有插件中止了启动流程
-            this.frameworkLogger.error(
-                "startup process has been aborted by plugin, shutting down..."
-            );
-            await this.dispose();
-        }
+        await this.plugins._runStartUp();
 
         // 启动完成，输出完成信息
         const endTime = Date.now();

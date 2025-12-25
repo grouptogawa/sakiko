@@ -4,14 +4,14 @@ import { z } from "zod/v4";
 
 export const FriendCategoryEntity = z.object({
     /** 好友分组 ID */
-    category_id: z.int32(),
+    category_id: z.number(),
     /** 好友分组名称 */
     category_name: z.string()
 });
 
 export const FriendEntity = z.object({
     /** 用户 QQ 号 */
-    user_id: z.int64(),
+    user_id: z.number(),
     /** 用户昵称 */
     nickname: z.string(),
     /** 用户性别 */
@@ -26,38 +26,38 @@ export const FriendEntity = z.object({
 
 export const GroupEntity = z.object({
     /** 群号 */
-    group_id: z.int64(),
+    group_id: z.number(),
     /** 群名称 */
     group_name: z.string(),
     /** 群成员数量 */
-    member_count: z.int32(),
+    member_count: z.number(),
     /** 群容量 */
-    max_member_count: z.int32()
+    max_member_count: z.number()
 });
 
 export const GroupMemberEntity = z.object({
     /** 用户 QQ 号 */
-    user_id: z.int64(),
+    user_id: z.number(),
     /** 用户昵称 */
     nickname: z.string(),
     /** 用户性别 */
     sex: z.enum(["male", "female", "unknown"]),
     /** 群号 */
-    group_id: z.int64(),
+    group_id: z.number(),
     /** 成员备注 */
     card: z.string(),
     /** 专属头衔 */
     title: z.string(),
     /** 群等级，注意和 QQ 等级区分 */
-    level: z.int32(),
+    level: z.number(),
     /** 权限等级 */
     role: z.enum(["owner", "admin", "member"]),
     /** 入群时间，Unix 时间戳（秒） */
-    join_time: z.int64(),
+    join_time: z.number(),
     /** 最后发言时间，Unix 时间戳（秒） */
-    last_sent_time: z.int64(),
+    last_sent_time: z.number(),
     /** 禁言结束时间，Unix 时间戳（秒） */
-    shut_up_end_time: z.int64().optional()
+    shut_up_end_time: z.number().optional()
 });
 
 // API 请求和响应数据结构定义 / API request and response data structure definitions
@@ -66,7 +66,7 @@ export const getLoginInfoReq = z.object({});
 
 export const getLoginInfoRes = z.object({
     /** 登录 QQ 号 */
-    uin: z.int64(),
+    uin: z.number(),
     /** 登录昵称 */
     nickname: z.string()
 });
@@ -98,7 +98,7 @@ export const getImplInfoRes = z.object({
 
 export const getUserProfileReq = z.object({
     /** 用户 QQ 号 */
-    user_id: z.int64()
+    user_id: z.number()
 });
 
 export const getUserProfileRes = z.object({
@@ -107,7 +107,7 @@ export const getUserProfileRes = z.object({
     /** QID */
     qid: z.string(),
     /** 年龄 */
-    age: z.int32(),
+    age: z.number(),
     /** 性别 */
     sex: z.enum(["male", "female", "unknown"]),
     /** 备注 */
@@ -115,7 +115,7 @@ export const getUserProfileRes = z.object({
     /** 个性签名 */
     bio: z.string(),
     /** QQ 等级 */
-    level: z.int32(),
+    level: z.number(),
     /** 国家或地区 */
     country: z.string(),
     /** 城市 */
@@ -136,7 +136,7 @@ export const getFriendListRes = z.object({
 
 export const getFriendInfoReq = z.object({
     /** 好友 QQ 号 */
-    user_id: z.int64(),
+    user_id: z.number(),
     /** 是否强制不使用缓存 (default: false) */
     no_cache: z.boolean().optional().default(false)
 });
@@ -158,7 +158,7 @@ export const getGroupListRes = z.object({
 
 export const getGroupInfoReq = z.object({
     /** 群号 */
-    group_id: z.int64(),
+    group_id: z.number(),
     /** 是否强制不使用缓存 (default: false) */
     no_cache: z.boolean().optional().default(false)
 });
@@ -170,7 +170,7 @@ export const getGroupInfoRes = z.object({
 
 export const getGroupMemberListReq = z.object({
     /** 群号 */
-    group_id: z.int64(),
+    group_id: z.number(),
     /** 是否强制不使用缓存 (default: false) */
     no_cache: z.boolean().optional().default(false)
 });
@@ -182,9 +182,9 @@ export const getGroupMemberListRes = z.object({
 
 export const getGroupMemberInfoReq = z.object({
     /** 群号 */
-    group_id: z.int64(),
+    group_id: z.number(),
     /** 群成员 QQ 号 */
-    user_id: z.int64(),
+    user_id: z.number(),
     /** 是否强制不使用缓存 (default: false) */
     no_cache: z.boolean().optional().default(false)
 });

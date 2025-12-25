@@ -33,7 +33,7 @@ export default defineConfig({
 
     treeshake: true,
     splitting: false,
-    bundle: false,
+    bundle: true,
 
     external
 });

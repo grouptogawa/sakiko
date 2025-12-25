@@ -25,7 +25,7 @@ export class MilkyIncomingMessage
     }
 
     mentioned(userId: string | number | bigint, allowAll: boolean): boolean {
-        const uid = BigInt(userId);
+        const uid = Number(userId);
         return this.some((seg) => {
             if (seg.type !== "mention" && seg.type !== "mention_all")
                 return false;
@@ -41,7 +41,7 @@ export class MilkyIncomingMessage
     }
 
     quoted(msgId: string | bigint): boolean {
-        const id = BigInt(msgId);
+        const id = Number(msgId);
         return this.some((seg) => {
             if (seg.type !== "reply") return false;
             return seg.data.message_seq === id;
@@ -59,7 +59,7 @@ export class MilkyIncomingMessage
     mention(userId: string | number | bigint): MilkyIncomingMessage {
         return this.update({
             type: "mention",
-            data: { user_id: BigInt(userId) }
+            data: { user_id: Number(userId) }
         } as incoming.Mention);
     }
 
@@ -73,7 +73,7 @@ export class MilkyIncomingMessage
     reply(messageSeq: string | number | bigint): MilkyIncomingMessage {
         return this.update({
             type: "reply",
-            data: { message_seq: BigInt(messageSeq) }
+            data: { message_seq: Number(messageSeq) }
         } as incoming.Reply);
     }
 
@@ -155,7 +155,7 @@ export class MilkyIncomingMessage
             data: {
                 file_id: fileId,
                 file_name: fileName,
-                file_size: BigInt(fileSize),
+                file_size: Number(fileSize),
                 file_hash: fileHash
             }
         } as incoming.File);

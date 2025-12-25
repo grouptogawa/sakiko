@@ -14,13 +14,13 @@ export const IncomingMessageEntity = z.discriminatedUnion("message_scene", [
         /** 消息场景 */
         message_scene: z.literal("friend"),
         /** 好友 QQ 号或群号 */
-        peer_id: z.int64(),
+        peer_id: z.number(),
         /** 消息序列号 */
-        message_seq: z.int64(),
+        message_seq: z.number(),
         /** 发送者 QQ 号 */
-        sender_id: z.int64(),
+        sender_id: z.number(),
         /** 消息 Unix 时间戳（秒） */
-        time: z.int64(),
+        time: z.number(),
         /** 消息段列表 */
         segments: z.array(IncomingSegmentSchema),
         /** 好友信息 */
@@ -30,13 +30,13 @@ export const IncomingMessageEntity = z.discriminatedUnion("message_scene", [
         /** 消息场景 */
         message_scene: z.literal("group"),
         /** 好友 QQ 号或群号 */
-        peer_id: z.int64(),
+        peer_id: z.number(),
         /** 消息序列号 */
-        message_seq: z.int64(),
+        message_seq: z.number(),
         /** 发送者 QQ 号 */
-        sender_id: z.int64(),
+        sender_id: z.number(),
         /** 消息 Unix 时间戳（秒） */
-        time: z.int64(),
+        time: z.number(),
         /** 消息段列表 */
         segments: z.array(IncomingSegmentSchema),
         /** 群信息 */
@@ -48,13 +48,13 @@ export const IncomingMessageEntity = z.discriminatedUnion("message_scene", [
         /** 消息场景 */
         message_scene: z.literal("temp"),
         /** 好友 QQ 号或群号 */
-        peer_id: z.int64(),
+        peer_id: z.number(),
         /** 消息序列号 */
-        message_seq: z.int64(),
+        message_seq: z.number(),
         /** 发送者 QQ 号 */
-        sender_id: z.int64(),
+        sender_id: z.number(),
         /** 消息 Unix 时间戳（秒） */
-        time: z.int64(),
+        time: z.number(),
         /** 消息段列表 */
         segments: z.array(IncomingSegmentSchema),
         /** 临时会话发送者的所在的群信息 */
@@ -73,7 +73,7 @@ export const IncomingForwardedMessageEntity = z.object({
     /** 发送者头像 URL */
     avatar_url: z.string(),
     /** 消息 Unix 时间戳（秒） */
-    time: z.int64(),
+    time: z.number(),
     /** 消息段列表 */
     segments: z.array(IncomingSegmentSchema)
 });
@@ -89,16 +89,16 @@ export type IncomingForwardedMessage = z.infer<
  */
 export const sendPrivateMessageReq = z.object({
     /** 好友 QQ 号 */
-    user_id: z.int64(),
+    user_id: z.number(),
     /** 消息内容 */
     message: z.array(OutgoingSegmentSchema)
 });
 
 export const sendPrivateMessageRes = z.object({
     /** 消息序列号 */
-    message_seq: z.int64(),
+    message_seq: z.number(),
     /** 消息发送时间，Unix 时间戳（秒） */
-    time: z.int64()
+    time: z.number()
 });
 
 /**
@@ -106,16 +106,16 @@ export const sendPrivateMessageRes = z.object({
  */
 export const sendGroupMessageReq = z.object({
     /** 群号 */
-    group_id: z.int64(),
+    group_id: z.number(),
     /** 消息内容 */
     message: z.array(OutgoingSegmentSchema)
 });
 
 export const sendGroupMessageRes = z.object({
     /** 消息序列号 */
-    message_seq: z.int64(),
+    message_seq: z.number(),
     /** 消息发送时间，Unix 时间戳（秒） */
-    time: z.int64()
+    time: z.number()
 });
 
 /**
@@ -123,9 +123,9 @@ export const sendGroupMessageRes = z.object({
  */
 export const recallPrivateMessageReq = z.object({
     /** 好友 QQ 号 */
-    user_id: z.int64(),
+    user_id: z.number(),
     /** 消息序列号 */
-    message_seq: z.int64()
+    message_seq: z.number()
 });
 
 export const recallPrivateMessageRes = z.object({});
@@ -135,9 +135,9 @@ export const recallPrivateMessageRes = z.object({});
  */
 export const recallGroupMessageReq = z.object({
     /** 群号 */
-    group_id: z.int64(),
+    group_id: z.number(),
     /** 消息序列号 */
-    message_seq: z.int64()
+    message_seq: z.number()
 });
 
 export const recallGroupMessageRes = z.object({});
@@ -149,9 +149,9 @@ export const getMessageReq = z.object({
     /** 消息场景 */
     message_scene: z.enum(["friend", "group", "temp"]),
     /** 好友 QQ 号或群号 */
-    peer_id: z.int64(),
+    peer_id: z.number(),
     /** 消息序列号 */
-    message_seq: z.int64()
+    message_seq: z.number()
 });
 
 export const getMessageRes = z.object({
@@ -166,18 +166,18 @@ export const getHistoryMessagesReq = z.object({
     /** 消息场景 */
     message_scene: z.enum(["friend", "group", "temp"]),
     /** 好友 QQ 号或群号 */
-    peer_id: z.int64(),
+    peer_id: z.number(),
     /** 起始消息序列号，由此开始从新到旧查询，不提供则从最新消息开始 */
-    start_message_seq: z.int64().optional(),
+    start_message_seq: z.number().optional(),
     /** 期望获取到的消息数量，最多 30 条 (default: 20) */
-    limit: z.int32().optional().default(20)
+    limit: z.number().optional().default(20)
 });
 
 export const getHistoryMessagesRes = z.object({
     /** 获取到的消息（message_seq 升序排列），部分消息可能不存在，如撤回的消息 */
     messages: z.array(IncomingMessageEntity),
     /** 下一页起始消息序列号 */
-    next_message_seq: z.int64().optional()
+    next_message_seq: z.number().optional()
 });
 
 /**
@@ -213,9 +213,9 @@ export const markMessageAsReadReq = z.object({
     /** 消息场景 */
     message_scene: z.enum(["friend", "group", "temp"]),
     /** 好友 QQ 号或群号 */
-    peer_id: z.int64(),
+    peer_id: z.number(),
     /** 标为已读的消息序列号，该消息及更早的消息将被标记为已读 */
-    message_seq: z.int64()
+    message_seq: z.number()
 });
 
 export const markMessageAsReadRes = z.object({});

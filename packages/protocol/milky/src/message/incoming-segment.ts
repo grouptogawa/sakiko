@@ -21,7 +21,7 @@ export const MentionSchema = z.object({
     type: z.literal("mention"),
     data: z.object({
         /** 提及的 QQ 号 */
-        user_id: z.int64()
+        user_id: z.number()
     })
 });
 
@@ -58,7 +58,7 @@ export const ReplySchema = z.object({
     type: z.literal("reply"),
     data: z.object({
         /** 被引用的消息序列号 */
-        message_seq: z.int64()
+        message_seq: z.number()
     })
 });
 
@@ -75,9 +75,9 @@ export const ImageSchema = z.object({
         /** 临时 URL */
         temp_url: z.string(),
         /** 图片宽度 */
-        width: z.int32(),
+        width: z.number(),
         /** 图片高度 */
-        height: z.int32(),
+        height: z.number(),
         /** 图片预览文本 */
         summary: z.string(),
         /** 图片类型 */
@@ -98,7 +98,7 @@ export const RecordSchema = z.object({
         /** 临时 URL */
         temp_url: z.string(),
         /** 语音时长（秒） */
-        duration: z.int32()
+        duration: z.number()
     })
 });
 
@@ -115,11 +115,11 @@ export const VideoSchema = z.object({
         /** 临时 URL */
         temp_url: z.string(),
         /** 视频宽度 */
-        width: z.int32(),
+        width: z.number(),
         /** 视频高度 */
-        height: z.int32(),
+        height: z.number(),
         /** 视频时长（秒） */
-        duration: z.int32()
+        duration: z.number()
     })
 });
 
@@ -136,7 +136,7 @@ export const FileSchema = z.object({
         /** 文件名称 */
         file_name: z.string(),
         /** 文件大小（字节） */
-        file_size: z.int64(),
+        file_size: z.number(),
         /** 文件的 TriSHA1 哈希值，仅在私聊文件中存在 */
         file_hash: z.string().optional()
     })
@@ -194,7 +194,7 @@ export const XmlSchema = z.object({
     type: z.literal("xml"),
     data: z.object({
         /** 服务 ID */
-        service_id: z.int32(),
+        service_id: z.number(),
         /** XML 数据 */
         xml_payload: z.string()
     })

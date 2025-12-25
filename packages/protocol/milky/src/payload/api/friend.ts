@@ -7,13 +7,13 @@ import { z } from "zod/v4";
  */
 export const FriendRequestEntity = z.object({
     /** 请求发起时的 Unix 时间戳（秒） */
-    time: z.int64(),
+    time: z.number(),
     /** 请求发起者 QQ 号 */
-    initiator_id: z.int64(),
+    initiator_id: z.number(),
     /** 请求发起者 UID */
     initiator_uid: z.string(),
     /** 目标用户 QQ 号 */
-    target_user_id: z.int64(),
+    target_user_id: z.number(),
     /** 目标用户 UID */
     target_user_uid: z.string(),
     /** 请求状态 */
@@ -35,7 +35,7 @@ export type FriendRequest = z.infer<typeof FriendRequestEntity>;
  */
 export const sendFriendNudgeReq = z.object({
     /** 好友 QQ 号 */
-    user_id: z.int64(),
+    user_id: z.number(),
     /** 是否戳自己 (default: false) */
     is_self: z.boolean().optional().default(false)
 });
@@ -47,9 +47,9 @@ export const sendFriendNudgeRes = z.object({});
  */
 export const sendProfileLikeReq = z.object({
     /** 好友 QQ 号 */
-    user_id: z.int64(),
+    user_id: z.number(),
     /** 点赞数量 (default: 1) */
-    count: z.int32().optional().default(1)
+    count: z.number().optional().default(1)
 });
 
 export const sendProfileLikeRes = z.object({});
@@ -59,7 +59,7 @@ export const sendProfileLikeRes = z.object({});
  */
 export const getFriendRequestsReq = z.object({
     /** 获取的最大请求数量 (default: 20) */
-    limit: z.int32().optional().default(20),
+    limit: z.number().optional().default(20),
     /** true 表示只获取被过滤（由风险账号发起）的通知，false 表示只获取未被过滤的通知 (default: false) */
     is_filtered: z.boolean().optional().default(false)
 });

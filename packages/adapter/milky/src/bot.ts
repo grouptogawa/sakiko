@@ -24,12 +24,12 @@ type MilkyAPIMap = typeof milkyAPIMap;
 
 export class MilkyBot implements ProtocolBot<MilkyAPIMap> {
     private readonly _logger?;
+    private _nickname: string | undefined = undefined;
 
     constructor(
         private readonly _adapter: Milky,
         private readonly _options: {
             _selfId: string;
-            _nickname: string;
             _apiBaseUrl: URL;
             _accessToken?: string;
         }
@@ -37,8 +37,14 @@ export class MilkyBot implements ProtocolBot<MilkyAPIMap> {
         this._logger = _adapter.logger;
     }
 
+    async init() {
+        this._nickname = (await this.getLoginInfo())?.nickname;
+    }
+
     get nickname(): string {
-        return this._options._nickname;
+        if (this._nickname) return this._nickname; // 当昵称已设置时返回昵称
+        // 一般来讲这个信息是在初始化流程就获取完成的，这里作为一种 fallback
+        return "";
     }
 
     get selfId(): string {
@@ -140,7 +146,7 @@ export class MilkyBot implements ProtocolBot<MilkyAPIMap> {
 
     /** 获取用户个人信息 */
     async getUserProfile(userId: string | number | bigint) {
-        return this.call("get_user_profile", { user_id: BigInt(userId) });
+        return this.call("get_user_profile", { user_id: Number(userId) });
     }
 
     /** 获取好友列表 */
@@ -151,7 +157,7 @@ export class MilkyBot implements ProtocolBot<MilkyAPIMap> {
     /** 获取好友信息 */
     async getFriendInfo(userId: string | number | bigint, noCache?: boolean) {
         return this.call("get_friend_info", {
-            user_id: BigInt(userId),
+            user_id: Number(userId),
             no_cache: noCache
         });
     }
@@ -159,7 +165,7 @@ export class MilkyBot implements ProtocolBot<MilkyAPIMap> {
     /** 发送好友戳一戳 */
     async sendFriendNudge(userId: string | number | bigint, isSelf?: boolean) {
         return this.call("send_friend_nudge", {
-            user_id: BigInt(userId),
+            user_id: Number(userId),
             is_self: isSelf
         });
     }
@@ -167,7 +173,7 @@ export class MilkyBot implements ProtocolBot<MilkyAPIMap> {
     /** 发送名片点赞 */
     async sendProfileLike(userId: string | number | bigint, count?: number) {
         return this.call("send_profile_like", {
-            user_id: BigInt(userId),
+            user_id: Number(userId),
             count: count ?? 1
         });
     }
@@ -211,7 +217,7 @@ export class MilkyBot implements ProtocolBot<MilkyAPIMap> {
     /** 获取群信息 */
     async getGroupInfo(groupId: string | number | bigint, noCache?: boolean) {
         return this.call("get_group_info", {
-            group_id: BigInt(groupId),
+            group_id: Number(groupId),
             no_cache: noCache
         });
     }
@@ -222,7 +228,7 @@ export class MilkyBot implements ProtocolBot<MilkyAPIMap> {
         noCache?: boolean
     ) {
         return this.call("get_group_member_list", {
-            group_id: BigInt(groupId),
+            group_id: Number(groupId),
             no_cache: noCache
         });
     }
@@ -234,8 +240,8 @@ export class MilkyBot implements ProtocolBot<MilkyAPIMap> {
         noCache?: boolean
     ) {
         return this.call("get_group_member_info", {
-            group_id: BigInt(groupId),
-            user_id: BigInt(userId),
+            group_id: Number(groupId),
+            user_id: Number(userId),
             no_cache: noCache
         });
     }
@@ -246,7 +252,7 @@ export class MilkyBot implements ProtocolBot<MilkyAPIMap> {
         newGroupName: string
     ) {
         return this.call("set_group_name", {
-            group_id: BigInt(groupId),
+            group_id: Number(groupId),
             new_group_name: newGroupName
         });
     }
@@ -254,7 +260,7 @@ export class MilkyBot implements ProtocolBot<MilkyAPIMap> {
     /** 设置群头像 */
     async setGroupAvatar(groupId: string | number | bigint, imageUri: string) {
         return this.call("set_group_avatar", {
-            group_id: BigInt(groupId),
+            group_id: Number(groupId),
             image_uri: imageUri
         });
     }
@@ -266,8 +272,8 @@ export class MilkyBot implements ProtocolBot<MilkyAPIMap> {
         card: string
     ) {
         return this.call("set_group_member_card", {
-            group_id: BigInt(groupId),
-            user_id: BigInt(userId),
+            group_id: Number(groupId),
+            user_id: Number(userId),
             card
         });
     }
@@ -279,8 +285,8 @@ export class MilkyBot implements ProtocolBot<MilkyAPIMap> {
         specialTitle: string
     ) {
         return this.call("set_group_member_special_title", {
-            group_id: BigInt(groupId),
-            user_id: BigInt(userId),
+            group_id: Number(groupId),
+            user_id: Number(userId),
             special_title: specialTitle
         });
     }
@@ -292,8 +298,8 @@ export class MilkyBot implements ProtocolBot<MilkyAPIMap> {
         isSet?: boolean
     ) {
         return this.call("set_group_member_admin", {
-            group_id: BigInt(groupId),
-            user_id: BigInt(userId),
+            group_id: Number(groupId),
+            user_id: Number(userId),
             is_set: isSet
         });
     }
@@ -305,8 +311,8 @@ export class MilkyBot implements ProtocolBot<MilkyAPIMap> {
         duration?: number
     ) {
         return this.call("set_group_member_mute", {
-            group_id: BigInt(groupId),
-            user_id: BigInt(userId),
+            group_id: Number(groupId),
+            user_id: Number(userId),
             duration: duration ?? 0
         });
     }
@@ -317,7 +323,7 @@ export class MilkyBot implements ProtocolBot<MilkyAPIMap> {
         isMute?: boolean
     ) {
         return this.call("set_group_whole_mute", {
-            group_id: BigInt(groupId),
+            group_id: Number(groupId),
             is_mute: isMute
         });
     }
@@ -329,8 +335,8 @@ export class MilkyBot implements ProtocolBot<MilkyAPIMap> {
         rejectAddRequest?: boolean
     ) {
         return this.call("kick_group_member", {
-            group_id: BigInt(groupId),
-            user_id: BigInt(userId),
+            group_id: Number(groupId),
+            user_id: Number(userId),
             reject_add_request: rejectAddRequest
         });
     }
@@ -338,7 +344,7 @@ export class MilkyBot implements ProtocolBot<MilkyAPIMap> {
     /** 获取群公告列表 */
     async getGroupAnnouncements(groupId: string | number | bigint) {
         return this.call("get_group_announcements", {
-            group_id: BigInt(groupId)
+            group_id: Number(groupId)
         });
     }
 
@@ -349,7 +355,7 @@ export class MilkyBot implements ProtocolBot<MilkyAPIMap> {
         imageUri?: string
     ) {
         return this.call("send_group_announcement", {
-            group_id: BigInt(groupId),
+            group_id: Number(groupId),
             content,
             image_uri: imageUri
         });
@@ -361,7 +367,7 @@ export class MilkyBot implements ProtocolBot<MilkyAPIMap> {
         announcementId: string
     ) {
         return this.call("delete_group_announcement", {
-            group_id: BigInt(groupId),
+            group_id: Number(groupId),
             announcement_id: announcementId
         });
     }
@@ -373,7 +379,7 @@ export class MilkyBot implements ProtocolBot<MilkyAPIMap> {
         pageSize: number
     ) {
         const result = await this.call("get_group_essence_messages", {
-            group_id: BigInt(groupId),
+            group_id: Number(groupId),
             page_index: pageIndex,
             page_size: pageSize
         });
@@ -396,15 +402,15 @@ export class MilkyBot implements ProtocolBot<MilkyAPIMap> {
         isSet?: boolean
     ) {
         return this.call("set_group_essence_message", {
-            group_id: BigInt(groupId),
-            message_seq: BigInt(messageSeq),
+            group_id: Number(groupId),
+            message_seq: Number(messageSeq),
             is_set: isSet
         });
     }
 
     /** 退出群 */
     async quitGroup(groupId: string | number | bigint) {
-        return this.call("quit_group", { group_id: BigInt(groupId) });
+        return this.call("quit_group", { group_id: Number(groupId) });
     }
 
     /** 发送群消息表情回应 */
@@ -415,8 +421,8 @@ export class MilkyBot implements ProtocolBot<MilkyAPIMap> {
         isAdd?: boolean
     ) {
         return this.call("send_group_message_reaction", {
-            group_id: BigInt(groupId),
-            message_seq: BigInt(messageSeq),
+            group_id: Number(groupId),
+            message_seq: Number(messageSeq),
             reaction,
             is_add: isAdd
         });
@@ -428,8 +434,8 @@ export class MilkyBot implements ProtocolBot<MilkyAPIMap> {
         userId: string | number | bigint
     ) {
         return this.call("send_group_nudge", {
-            group_id: BigInt(groupId),
-            user_id: BigInt(userId)
+            group_id: Number(groupId),
+            user_id: Number(userId)
         });
     }
 
@@ -441,7 +447,7 @@ export class MilkyBot implements ProtocolBot<MilkyAPIMap> {
     }) {
         return this.call("get_group_notifications", {
             start_notification_seq: options?.startNotificationSeq
-                ? BigInt(options.startNotificationSeq)
+                ? Number(options.startNotificationSeq)
                 : undefined,
             is_filtered: options?.isFiltered,
             limit: options?.limit
@@ -456,9 +462,9 @@ export class MilkyBot implements ProtocolBot<MilkyAPIMap> {
         isFiltered?: boolean
     ) {
         return this.call("accept_group_request", {
-            notification_seq: BigInt(notificationSeq),
+            notification_seq: Number(notificationSeq),
             notification_type: notificationType,
-            group_id: BigInt(groupId),
+            group_id: Number(groupId),
             is_filtered: isFiltered
         });
     }
@@ -471,9 +477,9 @@ export class MilkyBot implements ProtocolBot<MilkyAPIMap> {
         options?: { isFiltered?: boolean; reason?: string }
     ) {
         return this.call("reject_group_request", {
-            notification_seq: BigInt(notificationSeq),
+            notification_seq: Number(notificationSeq),
             notification_type: notificationType,
-            group_id: BigInt(groupId),
+            group_id: Number(groupId),
             is_filtered: options?.isFiltered,
             reason: options?.reason
         });
@@ -485,8 +491,8 @@ export class MilkyBot implements ProtocolBot<MilkyAPIMap> {
         invitationSeq: string | number | bigint
     ) {
         return this.call("accept_group_invitation", {
-            group_id: BigInt(groupId),
-            invitation_seq: BigInt(invitationSeq)
+            group_id: Number(groupId),
+            invitation_seq: Number(invitationSeq)
         });
     }
 
@@ -496,8 +502,8 @@ export class MilkyBot implements ProtocolBot<MilkyAPIMap> {
         invitationSeq: string | number | bigint
     ) {
         return this.call("reject_group_invitation", {
-            group_id: BigInt(groupId),
-            invitation_seq: BigInt(invitationSeq)
+            group_id: Number(groupId),
+            invitation_seq: Number(invitationSeq)
         });
     }
 
@@ -518,7 +524,7 @@ export class MilkyBot implements ProtocolBot<MilkyAPIMap> {
         fileName: string
     ) {
         return this.call("upload_private_file", {
-            user_id: BigInt(userId),
+            user_id: Number(userId),
             file_uri: fileUri,
             file_name: fileName
         });
@@ -532,7 +538,7 @@ export class MilkyBot implements ProtocolBot<MilkyAPIMap> {
         parentFolderId?: string
     ) {
         return this.call("upload_group_file", {
-            group_id: BigInt(groupId),
+            group_id: Number(groupId),
             parent_folder_id: parentFolderId ?? "/",
             file_uri: fileUri,
             file_name: fileName
@@ -546,7 +552,7 @@ export class MilkyBot implements ProtocolBot<MilkyAPIMap> {
         fileHash: string
     ) {
         return this.call("get_private_file_download_url", {
-            user_id: BigInt(userId),
+            user_id: Number(userId),
             file_id: fileId,
             file_hash: fileHash
         });
@@ -558,7 +564,7 @@ export class MilkyBot implements ProtocolBot<MilkyAPIMap> {
         fileId: string
     ) {
         return this.call("get_group_file_download_url", {
-            group_id: BigInt(groupId),
+            group_id: Number(groupId),
             file_id: fileId
         });
     }
@@ -569,7 +575,7 @@ export class MilkyBot implements ProtocolBot<MilkyAPIMap> {
         parentFolderId?: string
     ) {
         return this.call("get_group_files", {
-            group_id: BigInt(groupId),
+            group_id: Number(groupId),
             parent_folder_id: parentFolderId ?? "/"
         });
     }
@@ -581,7 +587,7 @@ export class MilkyBot implements ProtocolBot<MilkyAPIMap> {
         options?: { parentFolderId?: string; targetFolderId?: string }
     ) {
         return this.call("move_group_file", {
-            group_id: BigInt(groupId),
+            group_id: Number(groupId),
             file_id: fileId,
             parent_folder_id: options?.parentFolderId ?? "/",
             target_folder_id: options?.targetFolderId ?? "/"
@@ -596,7 +602,7 @@ export class MilkyBot implements ProtocolBot<MilkyAPIMap> {
         parentFolderId?: string
     ) {
         return this.call("rename_group_file", {
-            group_id: BigInt(groupId),
+            group_id: Number(groupId),
             file_id: fileId,
             parent_folder_id: parentFolderId ?? "/",
             new_file_name: newFileName
@@ -606,7 +612,7 @@ export class MilkyBot implements ProtocolBot<MilkyAPIMap> {
     /** 删除群文件 */
     async deleteGroupFile(groupId: string | number | bigint, fileId: string) {
         return this.call("delete_group_file", {
-            group_id: BigInt(groupId),
+            group_id: Number(groupId),
             file_id: fileId
         });
     }
@@ -617,7 +623,7 @@ export class MilkyBot implements ProtocolBot<MilkyAPIMap> {
         folderName: string
     ) {
         return this.call("create_group_folder", {
-            group_id: BigInt(groupId),
+            group_id: Number(groupId),
             folder_name: folderName
         });
     }
@@ -629,7 +635,7 @@ export class MilkyBot implements ProtocolBot<MilkyAPIMap> {
         newFolderName: string
     ) {
         return this.call("rename_group_folder", {
-            group_id: BigInt(groupId),
+            group_id: Number(groupId),
             folder_id: folderId,
             new_folder_name: newFolderName
         });
@@ -641,7 +647,7 @@ export class MilkyBot implements ProtocolBot<MilkyAPIMap> {
         folderId: string
     ) {
         return this.call("delete_group_folder", {
-            group_id: BigInt(groupId),
+            group_id: Number(groupId),
             folder_id: folderId
         });
     }
@@ -652,7 +658,7 @@ export class MilkyBot implements ProtocolBot<MilkyAPIMap> {
         message: ogmsg.MilkyOutgoingMessage
     ) {
         return this.call("send_private_message", {
-            user_id: BigInt(userId),
+            user_id: Number(userId),
             message: [...message] // 解包数据
         });
     }
@@ -663,7 +669,7 @@ export class MilkyBot implements ProtocolBot<MilkyAPIMap> {
         message: ogmsg.MilkyOutgoingMessage
     ) {
         return this.call("send_group_message", {
-            group_id: BigInt(groupId),
+            group_id: Number(groupId),
             message: [...message] // 解包数据
         });
     }
@@ -674,8 +680,8 @@ export class MilkyBot implements ProtocolBot<MilkyAPIMap> {
         messageSeq: string | number | bigint
     ) {
         return this.call("recall_private_message", {
-            user_id: BigInt(userId),
-            message_seq: BigInt(messageSeq)
+            user_id: Number(userId),
+            message_seq: Number(messageSeq)
         });
     }
 
@@ -685,8 +691,8 @@ export class MilkyBot implements ProtocolBot<MilkyAPIMap> {
         messageSeq: string | number | bigint
     ) {
         return this.call("recall_group_message", {
-            group_id: BigInt(groupId),
-            message_seq: BigInt(messageSeq)
+            group_id: Number(groupId),
+            message_seq: Number(messageSeq)
         });
     }
 
@@ -698,8 +704,8 @@ export class MilkyBot implements ProtocolBot<MilkyAPIMap> {
     ) {
         const result = await this.call("get_message", {
             message_scene: messageScene,
-            peer_id: BigInt(peerId),
-            message_seq: BigInt(messageSeq)
+            peer_id: Number(peerId),
+            message_seq: Number(messageSeq)
         });
 
         // 转换结果中的消息段列表为 MilkyIncomingMessage 实例
@@ -727,9 +733,9 @@ export class MilkyBot implements ProtocolBot<MilkyAPIMap> {
     ) {
         const result = await this.call("get_history_messages", {
             message_scene: messageScene,
-            peer_id: BigInt(peerId),
+            peer_id: Number(peerId),
             start_message_seq: options?.startSeq
-                ? BigInt(options.startSeq)
+                ? Number(options.startSeq)
                 : undefined,
             limit:
                 options?.limit === undefined ? 20 : Math.min(options.limit, 30)
@@ -775,8 +781,8 @@ export class MilkyBot implements ProtocolBot<MilkyAPIMap> {
     ) {
         return this.call("mark_message_as_read", {
             message_scene: messageScene,
-            peer_id: BigInt(peerId),
-            message_seq: BigInt(messageSeq)
+            peer_id: Number(peerId),
+            message_seq: Number(messageSeq)
         });
     }
 

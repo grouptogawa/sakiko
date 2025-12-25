@@ -23,7 +23,7 @@ export const MentionSchema = z.object({
     type: z.literal("mention"),
     data: z.object({
         /** 提及的 QQ 号 */
-        user_id: z.int64()
+        user_id: z.number()
     })
 });
 
@@ -59,7 +59,7 @@ export const ReplySchema = z.object({
     type: z.literal("reply"),
     data: z.object({
         /** 被引用的消息序列号 */
-        message_seq: z.int64()
+        message_seq: z.number()
     })
 });
 
@@ -114,8 +114,8 @@ export type Video = z.infer<typeof VideoSchema> & UniSegmentLike;
 export interface OutgoingForwardedMessage {
     content: OutgoingSegment[];
     nickname?: string;
-    user_id?: bigint;
-    timestamp?: bigint;
+    user_id?: number;
+    timestamp?: number;
 }
 
 export interface Forward extends UniSegmentLike {
@@ -143,8 +143,8 @@ export const ForwardSchema: z.ZodType = z.lazy(() =>
 export const OutgoingForwardedMessageSchema: z.ZodType = z.object({
     content: z.array(z.lazy(() => OutgoingSegmentSchema)),
     nickname: z.string().optional(),
-    user_id: z.int64().optional(),
-    timestamp: z.int64().optional()
+    user_id: z.number().optional(),
+    timestamp: z.number().optional()
 });
 
 /**

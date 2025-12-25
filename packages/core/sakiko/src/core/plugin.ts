@@ -7,10 +7,10 @@ import type {
 } from "@togawa-dev/umiri";
 
 import type { ILogger } from "@togawa-dev/utils";
-import { MatcherBuilderWithIns, type MatcherBuilder } from "./matcher";
+import { MatcherBuilderWithIns } from "./matcher";
 import type { Sakiko } from "./sakiko";
-import chalk from "chalk";
 import type { SakikoConfig } from "./config";
+import chalk from "chalk";
 
 /**
  * Sakiko 插件类型定义
@@ -75,8 +75,6 @@ export function isSakikoAdapter(obj: any): obj is SakikoAdapter {
 
 export class PluginManager extends Map<string, SakikoPlugin> {
     private _logger: ILogger;
-    private _onStartUps: Array<() => Promise<void | boolean>> = [];
-    private _onShutDowns: Array<() => Promise<void>> = [];
 
     constructor(private _sakiko: Sakiko) {
         super();
@@ -143,14 +141,6 @@ export class PluginManager extends Map<string, SakikoPlugin> {
             }
         }
 
-        // 收集插件的启动和关闭钩子
-        if (typeof plugin.onStartUp === "function") {
-            this._onStartUps.push(() => plugin.onStartUp!());
-        }
-        if (typeof plugin.onShutDown === "function") {
-            this._onShutDowns.push(() => plugin.onShutDown!());
-        }
-
         // 注册这个插件的所有事件匹配器
         this._registerPluginMatchers(plugin);
 
@@ -186,14 +176,6 @@ export class PluginManager extends Map<string, SakikoPlugin> {
 
         // 移除这个插件注册的所有事件匹配器
         this._unregisterPluginMatchers(plugin);
-
-        // 从启动和关闭钩子列表中移除这个插件的钩子
-        this._onStartUps = this._onStartUps.filter(
-            (fn) => fn !== plugin.onStartUp
-        );
-        this._onShutDowns = this._onShutDowns.filter(
-            (fn) => fn !== plugin.onShutDown
-        );
 
         // 调用插件的卸载钩子
         if (plugin.onUnload) {
@@ -233,12 +215,27 @@ export class PluginManager extends Map<string, SakikoPlugin> {
     }
 
     async _runStartUp() {
-        const results = await Promise.all(this._onStartUps.map((fn) => fn()));
-        return !results.some((r) => r === false);
+        this._logger.debug("running startup hooks...");
+        for (const plugin of this.values()) {
+            if (plugin.onStartUp) {
+                const result = await plugin.onStartUp();
+                if (result === false) {
+                    this._logger.warn(
+                        `plugin ${plugin.pluginId} aborted startup, unloading`
+                    );
+                    await this.unload(plugin.pluginId);
+                }
+            }
+        }
     }
 
     async _runShutDown() {
-        await Promise.all(this._onShutDowns.map((fn) => fn()));
+        this._logger.debug("running shutdown hooks...");
+        for (const plugin of this.values()) {
+            if (plugin.onShutDown) {
+                await plugin.onShutDown();
+            }
+        }
 
         // 解除所有插件注册的事件匹配器
         for (const plugin of this.values()) {

@@ -29,13 +29,13 @@ export const MessageRecallEventDataSchema = z.object({
     /** 消息场景 */
     message_scene: z.enum(["friend", "group", "temp"]),
     /** 好友 QQ 号或群号 */
-    peer_id: z.int64(),
+    peer_id: z.number(),
     /** 消息序列号 */
-    message_seq: z.int64(),
+    message_seq: z.number(),
     /** 被撤回的消息的发送者 QQ 号 */
-    sender_id: z.int64(),
+    sender_id: z.number(),
     /** 操作者 QQ 号 */
-    operator_id: z.int64(),
+    operator_id: z.number(),
     /** 撤回提示的后缀文本 */
     display_suffix: z.string()
 });
@@ -49,7 +49,7 @@ export type MessageRecallEventData = z.infer<
  */
 export const FriendRequestEventDataSchema = z.object({
     /** 申请好友的用户 QQ 号 */
-    initiator_id: z.int64(),
+    initiator_id: z.number(),
     /** 用户 UID */
     initiator_uid: z.string(),
     /** 申请附加信息 */
@@ -67,13 +67,13 @@ export type FriendRequestEventData = z.infer<
  */
 export const GroupJoinRequestEventDataSchema = z.object({
     /** 群号 */
-    group_id: z.int64(),
+    group_id: z.number(),
     /** 请求对应的通知序列号 */
-    notification_seq: z.int64(),
+    notification_seq: z.number(),
     /** 请求是否被过滤（发起自风险账户） */
     is_filtered: z.boolean(),
     /** 申请入群的用户 QQ 号 */
-    initiator_id: z.int64(),
+    initiator_id: z.number(),
     /** 申请附加信息 */
     comment: z.string()
 });
@@ -87,13 +87,13 @@ export type GroupJoinRequestEventData = z.infer<
  */
 export const GroupInvitedJoinRequestEventDataSchema = z.object({
     /** 群号 */
-    group_id: z.int64(),
+    group_id: z.number(),
     /** 请求对应的通知序列号 */
-    notification_seq: z.int64(),
+    notification_seq: z.number(),
     /** 邀请者 QQ 号 */
-    initiator_id: z.int64(),
+    initiator_id: z.number(),
     /** 被邀请者 QQ 号 */
-    target_user_id: z.int64()
+    target_user_id: z.number()
 });
 
 export type GroupInvitedJoinRequestEventData = z.infer<
@@ -105,11 +105,11 @@ export type GroupInvitedJoinRequestEventData = z.infer<
  */
 export const GroupInvitationEventDataSchema = z.object({
     /** 群号 */
-    group_id: z.int64(),
+    group_id: z.number(),
     /** 邀请序列号 */
-    invitation_seq: z.int64(),
+    invitation_seq: z.number(),
     /** 邀请者 QQ 号 */
-    initiator_id: z.int64()
+    initiator_id: z.number()
 });
 
 export type GroupInvitationEventData = z.infer<
@@ -121,7 +121,7 @@ export type GroupInvitationEventData = z.infer<
  */
 export const FriendNudgeEventDataSchema = z.object({
     /** 好友 QQ 号 */
-    user_id: z.int64(),
+    user_id: z.number(),
     /** 是否是自己发送的戳一戳 */
     is_self_send: z.boolean(),
     /** 是否是自己接收的戳一戳 */
@@ -141,13 +141,13 @@ export type FriendNudgeEventData = z.infer<typeof FriendNudgeEventDataSchema>;
  */
 export const FriendFileUploadEventDataSchema = z.object({
     /** 好友 QQ 号 */
-    user_id: z.int64(),
+    user_id: z.number(),
     /** 文件 ID */
     file_id: z.string(),
     /** 文件名称 */
     file_name: z.string(),
     /** 文件大小（字节） */
-    file_size: z.int64(),
+    file_size: z.number(),
     /** 文件的 TriSHA1 哈希值 */
     file_hash: z.string(),
     /** 是否是自己发送的文件 */
@@ -163,9 +163,9 @@ export type FriendFileUploadEventData = z.infer<
  */
 export const GroupAdminChangeEventDataSchema = z.object({
     /** 群号 */
-    group_id: z.int64(),
+    group_id: z.number(),
     /** 发生变更的用户 QQ 号 */
-    user_id: z.int64(),
+    user_id: z.number(),
     /** 是否被设置为管理员，`false` 表示被取消管理员 */
     is_set: z.boolean()
 });
@@ -179,9 +179,9 @@ export type GroupAdminChangeEventData = z.infer<
  */
 export const GroupEssenceMessageChangeEventDataSchema = z.object({
     /** 群号 */
-    group_id: z.int64(),
+    group_id: z.number(),
     /** 发生变更的消息序列号 */
-    message_seq: z.int64(),
+    message_seq: z.number(),
     /** 是否被设置为精华，`false` 表示被取消精华 */
     is_set: z.boolean()
 });
@@ -195,13 +195,13 @@ export type GroupEssenceMessageChangeEventData = z.infer<
  */
 export const GroupMemberIncreaseEventDataSchema = z.object({
     /** 群号 */
-    group_id: z.int64(),
+    group_id: z.number(),
     /** 发生变更的用户 QQ 号 */
-    user_id: z.int64(),
+    user_id: z.number(),
     /** 管理员 QQ 号，如果是管理员同意入群 */
-    operator_id: z.int64().optional(),
+    operator_id: z.number().optional(),
     /** 邀请者 QQ 号，如果是邀请入群 */
-    invitor_id: z.int64().optional()
+    invitor_id: z.number().optional()
 });
 
 export type GroupMemberIncreaseEventData = z.infer<
@@ -213,11 +213,11 @@ export type GroupMemberIncreaseEventData = z.infer<
  */
 export const GroupMemberDecreaseEventDataSchema = z.object({
     /** 群号 */
-    group_id: z.int64(),
+    group_id: z.number(),
     /** 发生变更的用户 QQ 号 */
-    user_id: z.int64(),
+    user_id: z.number(),
     /** 管理员 QQ 号，如果是管理员踢出 */
-    operator_id: z.int64().optional()
+    operator_id: z.number().optional()
 });
 
 export type GroupMemberDecreaseEventData = z.infer<
@@ -229,11 +229,11 @@ export type GroupMemberDecreaseEventData = z.infer<
  */
 export const GroupNameChangeEventDataSchema = z.object({
     /** 群号 */
-    group_id: z.int64(),
+    group_id: z.number(),
     /** 新的群名称 */
     new_group_name: z.string(),
     /** 操作者 QQ 号 */
-    operator_id: z.int64()
+    operator_id: z.number()
 });
 
 export type GroupNameChangeEventData = z.infer<
@@ -245,11 +245,11 @@ export type GroupNameChangeEventData = z.infer<
  */
 export const GroupMessageReactionEventDataSchema = z.object({
     /** 群号 */
-    group_id: z.int64(),
+    group_id: z.number(),
     /** 发送回应者 QQ 号 */
-    user_id: z.int64(),
+    user_id: z.number(),
     /** 消息序列号 */
-    message_seq: z.int64(),
+    message_seq: z.number(),
     /** 表情 ID */
     face_id: z.string(),
     /** 是否为添加，`false` 表示取消回应 */
@@ -265,13 +265,13 @@ export type GroupMessageReactionEventData = z.infer<
  */
 export const GroupMuteEventDataSchema = z.object({
     /** 群号 */
-    group_id: z.int64(),
+    group_id: z.number(),
     /** 发生变更的用户 QQ 号 */
-    user_id: z.int64(),
+    user_id: z.number(),
     /** 操作者 QQ 号 */
-    operator_id: z.int64(),
+    operator_id: z.number(),
     /** 禁言时长（秒），为 0 表示取消禁言 */
-    duration: z.int32()
+    duration: z.number()
 });
 
 export type GroupMuteEventData = z.infer<typeof GroupMuteEventDataSchema>;
@@ -281,9 +281,9 @@ export type GroupMuteEventData = z.infer<typeof GroupMuteEventDataSchema>;
  */
 export const GroupWholeMuteEventDataSchema = z.object({
     /** 群号 */
-    group_id: z.int64(),
+    group_id: z.number(),
     /** 操作者 QQ 号 */
-    operator_id: z.int64(),
+    operator_id: z.number(),
     /** 是否全员禁言，`false` 表示取消全员禁言 */
     is_mute: z.boolean()
 });
@@ -297,11 +297,11 @@ export type GroupWholeMuteEventData = z.infer<
  */
 export const GroupNudgeEventDataSchema = z.object({
     /** 群号 */
-    group_id: z.int64(),
+    group_id: z.number(),
     /** 发送者 QQ 号 */
-    sender_id: z.int64(),
+    sender_id: z.number(),
     /** 接收者 QQ 号 */
-    receiver_id: z.int64(),
+    receiver_id: z.number(),
     /** 戳一戳提示的动作文本 */
     display_action: z.string(),
     /** 戳一戳提示的后缀文本 */
@@ -317,15 +317,15 @@ export type GroupNudgeEventData = z.infer<typeof GroupNudgeEventDataSchema>;
  */
 export const GroupFileUploadEventDataSchema = z.object({
     /** 群号 */
-    group_id: z.int64(),
+    group_id: z.number(),
     /** 发送者 QQ 号 */
-    user_id: z.int64(),
+    user_id: z.number(),
     /** 文件 ID */
     file_id: z.string(),
     /** 文件名称 */
     file_name: z.string(),
     /** 文件大小（字节） */
-    file_size: z.int64()
+    file_size: z.number()
 });
 
 export type GroupFileUploadEventData = z.infer<
@@ -339,8 +339,8 @@ export type GroupFileUploadEventData = z.infer<
  */
 export const BotOfflineEventPayload = z.object({
     event_type: z.literal("bot_offline"),
-    time: z.int64(),
-    self_id: z.int64(),
+    time: z.number(),
+    self_id: z.number(),
     data: BotOfflineEventDataSchema
 });
 
@@ -351,8 +351,8 @@ export type BotOfflineEventPayload = z.infer<typeof BotOfflineEventPayload>;
  */
 export const MessageReceiveEventPayload = z.object({
     event_type: z.literal("message_receive"),
-    time: z.int64(),
-    self_id: z.int64(),
+    time: z.number(),
+    self_id: z.number(),
     data: MessageReceiveEventDataSchema
 });
 
@@ -365,8 +365,8 @@ export type MessageReceiveEventPayload = z.infer<
  */
 export const MessageRecallEventPayload = z.object({
     event_type: z.literal("message_recall"),
-    time: z.int64(),
-    self_id: z.int64(),
+    time: z.number(),
+    self_id: z.number(),
     data: MessageRecallEventDataSchema
 });
 
@@ -379,8 +379,8 @@ export type MessageRecallEventPayload = z.infer<
  */
 export const FriendRequestEventPayload = z.object({
     event_type: z.literal("friend_request"),
-    time: z.int64(),
-    self_id: z.int64(),
+    time: z.number(),
+    self_id: z.number(),
     data: FriendRequestEventDataSchema
 });
 
@@ -393,8 +393,8 @@ export type FriendRequestEventPayload = z.infer<
  */
 export const GroupJoinRequestEventPayload = z.object({
     event_type: z.literal("group_join_request"),
-    time: z.int64(),
-    self_id: z.int64(),
+    time: z.number(),
+    self_id: z.number(),
     data: GroupJoinRequestEventDataSchema
 });
 
@@ -407,8 +407,8 @@ export type GroupJoinRequestEventPayload = z.infer<
  */
 export const GroupInvitedJoinRequestEventPayload = z.object({
     event_type: z.literal("group_invited_join_request"),
-    time: z.int64(),
-    self_id: z.int64(),
+    time: z.number(),
+    self_id: z.number(),
     data: GroupInvitedJoinRequestEventDataSchema
 });
 
@@ -421,8 +421,8 @@ export type GroupInvitedJoinRequestEventPayload = z.infer<
  */
 export const GroupInvitationEventPayload = z.object({
     event_type: z.literal("group_invitation"),
-    time: z.int64(),
-    self_id: z.int64(),
+    time: z.number(),
+    self_id: z.number(),
     data: GroupInvitationEventDataSchema
 });
 
@@ -435,8 +435,8 @@ export type GroupInvitationEventPayload = z.infer<
  */
 export const FriendNudgeEventPayload = z.object({
     event_type: z.literal("friend_nudge"),
-    time: z.int64(),
-    self_id: z.int64(),
+    time: z.number(),
+    self_id: z.number(),
     data: FriendNudgeEventDataSchema
 });
 
@@ -447,8 +447,8 @@ export type FriendNudgeEventPayload = z.infer<typeof FriendNudgeEventPayload>;
  */
 export const FriendFileUploadEventPayload = z.object({
     event_type: z.literal("friend_file_upload"),
-    time: z.int64(),
-    self_id: z.int64(),
+    time: z.number(),
+    self_id: z.number(),
     data: FriendFileUploadEventDataSchema
 });
 
@@ -461,8 +461,8 @@ export type FriendFileUploadEventPayload = z.infer<
  */
 export const GroupAdminChangeEventPayload = z.object({
     event_type: z.literal("group_admin_change"),
-    time: z.int64(),
-    self_id: z.int64(),
+    time: z.number(),
+    self_id: z.number(),
     data: GroupAdminChangeEventDataSchema
 });
 
@@ -475,8 +475,8 @@ export type GroupAdminChangeEventPayload = z.infer<
  */
 export const GroupEssenceMessageChangeEventPayload = z.object({
     event_type: z.literal("group_essence_message_change"),
-    time: z.int64(),
-    self_id: z.int64(),
+    time: z.number(),
+    self_id: z.number(),
     data: GroupEssenceMessageChangeEventDataSchema
 });
 
@@ -489,8 +489,8 @@ export type GroupEssenceMessageChangeEventPayload = z.infer<
  */
 export const GroupMemberIncreaseEventPayload = z.object({
     event_type: z.literal("group_member_increase"),
-    time: z.int64(),
-    self_id: z.int64(),
+    time: z.number(),
+    self_id: z.number(),
     data: GroupMemberIncreaseEventDataSchema
 });
 
@@ -503,8 +503,8 @@ export type GroupMemberIncreaseEventPayload = z.infer<
  */
 export const GroupMemberDecreaseEventPayload = z.object({
     event_type: z.literal("group_member_decrease"),
-    time: z.int64(),
-    self_id: z.int64(),
+    time: z.number(),
+    self_id: z.number(),
     data: GroupMemberDecreaseEventDataSchema
 });
 
@@ -517,8 +517,8 @@ export type GroupMemberDecreaseEventPayload = z.infer<
  */
 export const GroupNameChangeEventPayload = z.object({
     event_type: z.literal("group_name_change"),
-    time: z.int64(),
-    self_id: z.int64(),
+    time: z.number(),
+    self_id: z.number(),
     data: GroupNameChangeEventDataSchema
 });
 
@@ -531,8 +531,8 @@ export type GroupNameChangeEventPayload = z.infer<
  */
 export const GroupMessageReactionEventPayload = z.object({
     event_type: z.literal("group_message_reaction"),
-    time: z.int64(),
-    self_id: z.int64(),
+    time: z.number(),
+    self_id: z.number(),
     data: GroupMessageReactionEventDataSchema
 });
 
@@ -545,8 +545,8 @@ export type GroupMessageReactionEventPayload = z.infer<
  */
 export const GroupMuteEventPayload = z.object({
     event_type: z.literal("group_mute"),
-    time: z.int64(),
-    self_id: z.int64(),
+    time: z.number(),
+    self_id: z.number(),
     data: GroupMuteEventDataSchema
 });
 
@@ -557,8 +557,8 @@ export type GroupMuteEventPayload = z.infer<typeof GroupMuteEventPayload>;
  */
 export const GroupWholeMuteEventPayload = z.object({
     event_type: z.literal("group_whole_mute"),
-    time: z.int64(),
-    self_id: z.int64(),
+    time: z.number(),
+    self_id: z.number(),
     data: GroupWholeMuteEventDataSchema
 });
 
@@ -571,8 +571,8 @@ export type GroupWholeMuteEventPayload = z.infer<
  */
 export const GroupNudgeEventPayload = z.object({
     event_type: z.literal("group_nudge"),
-    time: z.int64(),
-    self_id: z.int64(),
+    time: z.number(),
+    self_id: z.number(),
     data: GroupNudgeEventDataSchema
 });
 
@@ -583,8 +583,8 @@ export type GroupNudgeEventPayload = z.infer<typeof GroupNudgeEventPayload>;
  */
 export const GroupFileUploadEventPayload = z.object({
     event_type: z.literal("group_file_upload"),
-    time: z.int64(),
-    self_id: z.int64(),
+    time: z.number(),
+    self_id: z.number(),
     data: GroupFileUploadEventDataSchema
 });
 

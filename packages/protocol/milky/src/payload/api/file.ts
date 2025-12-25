@@ -7,7 +7,7 @@ import { z } from "zod/v4";
  */
 export const GroupFileEntity = z.object({
     /** 群号 */
-    group_id: z.int64(),
+    group_id: z.number(),
     /** 文件 ID */
     file_id: z.string(),
     /** 文件名称 */
@@ -15,15 +15,15 @@ export const GroupFileEntity = z.object({
     /** 父文件夹 ID */
     parent_folder_id: z.string(),
     /** 文件大小（字节） */
-    file_size: z.int64(),
+    file_size: z.number(),
     /** 上传时的 Unix 时间戳（秒） */
-    uploaded_time: z.int64(),
+    uploaded_time: z.number(),
     /** 过期时的 Unix 时间戳（秒） */
-    expire_time: z.int64().optional(),
+    expire_time: z.number().optional(),
     /** 上传者 QQ 号 */
-    uploader_id: z.int64(),
+    uploader_id: z.number(),
     /** 下载次数 */
-    downloaded_times: z.int32()
+    downloaded_times: z.number()
 });
 
 export type GroupFile = z.infer<typeof GroupFileEntity>;
@@ -33,7 +33,7 @@ export type GroupFile = z.infer<typeof GroupFileEntity>;
  */
 export const GroupFolderEntity = z.object({
     /** 群号 */
-    group_id: z.int64(),
+    group_id: z.number(),
     /** 文件夹 ID */
     folder_id: z.string(),
     /** 父文件夹 ID */
@@ -41,13 +41,13 @@ export const GroupFolderEntity = z.object({
     /** 文件夹名称 */
     folder_name: z.string(),
     /** 创建时的 Unix 时间戳（秒） */
-    created_time: z.int64(),
+    created_time: z.number(),
     /** 最后修改时的 Unix 时间戳（秒） */
-    last_modified_time: z.int64(),
+    last_modified_time: z.number(),
     /** 创建者 QQ 号 */
-    creator_id: z.int64(),
+    creator_id: z.number(),
     /** 文件数量 */
-    file_count: z.int32()
+    file_count: z.number()
 });
 
 export type GroupFolder = z.infer<typeof GroupFolderEntity>;
@@ -59,7 +59,7 @@ export type GroupFolder = z.infer<typeof GroupFolderEntity>;
  */
 export const uploadPrivateFileReq = z.object({
     /** 好友 QQ 号 */
-    user_id: z.int64(),
+    user_id: z.number(),
     /** 文件 URI，支持 `file://` `http(s)://` `base64://` 三种格式 */
     file_uri: z.string(),
     /** 文件名称 */
@@ -76,7 +76,7 @@ export const uploadPrivateFileRes = z.object({
  */
 export const uploadGroupFileReq = z.object({
     /** 群号 */
-    group_id: z.int64(),
+    group_id: z.number(),
     /** 目标文件夹 ID (default: "/") */
     parent_folder_id: z.string().optional().default("/"),
     /** 文件 URI，支持 `file://` `http(s)://` `base64://` 三种格式 */
@@ -95,7 +95,7 @@ export const uploadGroupFileRes = z.object({
  */
 export const getPrivateFileDownloadUrlReq = z.object({
     /** 好友 QQ 号 */
-    user_id: z.int64(),
+    user_id: z.number(),
     /** 文件 ID */
     file_id: z.string(),
     /** 文件的 TriSHA1 哈希值 */
@@ -112,7 +112,7 @@ export const getPrivateFileDownloadUrlRes = z.object({
  */
 export const getGroupFileDownloadUrlReq = z.object({
     /** 群号 */
-    group_id: z.int64(),
+    group_id: z.number(),
     /** 文件 ID */
     file_id: z.string()
 });
@@ -127,7 +127,7 @@ export const getGroupFileDownloadUrlRes = z.object({
  */
 export const getGroupFilesReq = z.object({
     /** 群号 */
-    group_id: z.int64(),
+    group_id: z.number(),
     /** 父文件夹 ID (default: "/") */
     parent_folder_id: z.string().optional().default("/")
 });
@@ -144,7 +144,7 @@ export const getGroupFilesRes = z.object({
  */
 export const moveGroupFileReq = z.object({
     /** 群号 */
-    group_id: z.int64(),
+    group_id: z.number(),
     /** 文件 ID */
     file_id: z.string(),
     /** 文件所在的文件夹 ID (default: "/") */
@@ -160,7 +160,7 @@ export const moveGroupFileRes = z.object({});
  */
 export const renameGroupFileReq = z.object({
     /** 群号 */
-    group_id: z.int64(),
+    group_id: z.number(),
     /** 文件 ID */
     file_id: z.string(),
     /** 文件所在的文件夹 ID (default: "/") */
@@ -176,7 +176,7 @@ export const renameGroupFileRes = z.object({});
  */
 export const deleteGroupFileReq = z.object({
     /** 群号 */
-    group_id: z.int64(),
+    group_id: z.number(),
     /** 文件 ID */
     file_id: z.string()
 });
@@ -188,7 +188,7 @@ export const deleteGroupFileRes = z.object({});
  */
 export const createGroupFolderReq = z.object({
     /** 群号 */
-    group_id: z.int64(),
+    group_id: z.number(),
     /** 文件夹名称 */
     folder_name: z.string()
 });
@@ -203,7 +203,7 @@ export const createGroupFolderRes = z.object({
  */
 export const renameGroupFolderReq = z.object({
     /** 群号 */
-    group_id: z.int64(),
+    group_id: z.number(),
     /** 文件夹 ID */
     folder_id: z.string(),
     /** 新文件夹名 */
@@ -217,7 +217,7 @@ export const renameGroupFolderRes = z.object({});
  */
 export const deleteGroupFolderReq = z.object({
     /** 群号 */
-    group_id: z.int64(),
+    group_id: z.number(),
     /** 文件夹 ID */
     folder_id: z.string()
 });

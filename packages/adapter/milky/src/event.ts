@@ -17,17 +17,21 @@ import { UmiriEvent } from "@togawa-dev/umiri";
 import type { UniMessage } from "@togawa-dev/utils/unimsg";
 import { icmsg } from "@togawa-dev/protocol-milky/message";
 
-export class MilkyEvent<Payload> extends UmiriEvent<Payload, MilkyBot> {
+export class MilkyEvent<Payload extends p.MilkyEventPayload> extends UmiriEvent<
+    Payload,
+    MilkyBot
+> {
     eventType: string;
-    time: bigint;
+    time: number;
 
-    constructor(
-        payload: { event_type: string; time: bigint; data: Payload },
-        bot: MilkyBot
-    ) {
-        super(payload.data, bot);
+    constructor(payload: Payload, bot: MilkyBot) {
+        super(payload, bot);
         this.eventType = payload.event_type;
         this.time = payload.time;
+    }
+
+    get data(): Payload["data"] {
+        return this.payload.data;
     }
 }
 
@@ -35,14 +39,14 @@ export class MilkyEvent<Payload> extends UmiriEvent<Payload, MilkyBot> {
  *
  * Bot Offline Event
  */
-export class BotOffline extends MilkyEvent<p.BotOfflineEventData> {}
+export class BotOffline extends MilkyEvent<p.BotOfflineEventPayload> {}
 
 /** 消息接收事件
  *
  * Message Receive Event
  */
 export class MessageReceive
-    extends MilkyEvent<p.MessageReceiveEventData>
+    extends MilkyEvent<p.MessageReceiveEventPayload>
     implements
         Plainable,
         HasContactId,
@@ -60,15 +64,15 @@ export class MessageReceive
     }
 
     getContactId(): string {
-        return this.payload.sender_id.toString();
+        return this.data.sender_id.toString();
     }
 
     getMessageId(): string {
-        return this.payload.message_seq.toString();
+        return this.data.message_seq.toString();
     }
 
-    getMessageSeq(): bigint {
-        return this.payload.message_seq;
+    getMessageSeq(): number {
+        return this.data.message_seq;
     }
 
     getUniMessage(): UniMessage {
@@ -79,7 +83,7 @@ export class MessageReceive
         // 懒实例化消息对象
         if (!this._instancedMessage) {
             this._instancedMessage = new icmsg.MilkyIncomingMessage(
-                ...this.payload.segments
+                ...this.data.segments
             );
         }
         return this._instancedMessage;
@@ -87,39 +91,39 @@ export class MessageReceive
 
     isPrivate(): boolean {
         return (
-            this.payload.message_scene === "friend" ||
-            this.payload.message_scene === "temp"
+            this.data.message_scene === "friend" ||
+            this.data.message_scene === "temp"
         );
     }
 
     isPublic(): boolean {
-        return this.payload.message_scene === "group";
+        return this.data.message_scene === "group";
     }
 
     getSceneId(): string {
-        return this.payload.peer_id.toString();
+        return this.data.peer_id.toString();
     }
 
     getFriendInfo() {
-        if (this.payload.message_scene === "friend") {
-            return this.payload.friend;
+        if (this.data.message_scene === "friend") {
+            return this.data.friend;
         }
         return undefined;
     }
 
     getGroupInfo() {
         if (
-            this.payload.message_scene === "group" ||
-            this.payload.message_scene === "temp"
+            this.data.message_scene === "group" ||
+            this.data.message_scene === "temp"
         ) {
-            return this.payload.group;
+            return this.data.group;
         }
         return undefined;
     }
 
     getGroupMemberInfo() {
-        if (this.payload.message_scene === "group") {
-            return this.payload.group_member;
+        if (this.data.message_scene === "group") {
+            return this.data.group_member;
         }
         return undefined;
     }
@@ -130,39 +134,39 @@ export class MessageReceive
  * Message Recall Event
  */
 export class MessageRecall
-    extends MilkyEvent<p.MessageRecallEventData>
+    extends MilkyEvent<p.MessageRecallEventPayload>
     implements HasContactId, HasScene, HasSceneId, HasOperatorId
 {
     getContactId(): string {
-        return this.payload.sender_id.toString();
+        return this.data.sender_id.toString();
     }
 
     isPrivate(): boolean {
-        return this.payload.message_scene === "friend";
+        return this.data.message_scene === "friend";
     }
 
     isPublic(): boolean {
-        return this.payload.message_scene === "group";
+        return this.data.message_scene === "group";
     }
 
     getSceneId(): string {
-        return this.payload.peer_id.toString();
+        return this.data.peer_id.toString();
     }
 
     getSuffix(): string {
-        return this.payload.display_suffix;
+        return this.data.display_suffix;
     }
 
     getOperatorId(): string {
-        return this.payload.operator_id.toString();
+        return this.data.operator_id.toString();
     }
 
-    getMessageSeq(): bigint {
-        return this.payload.message_seq;
+    getMessageSeq(): number {
+        return this.data.message_seq;
     }
 
     getSenderId(): string {
-        return this.payload.sender_id.toString();
+        return this.data.sender_id.toString();
     }
 }
 
@@ -170,21 +174,21 @@ export class MessageRecall
  *
  * Friend Request Event
  */
-export class FriendRequest extends MilkyEvent<p.FriendRequestEventData> {
+export class FriendRequest extends MilkyEvent<p.FriendRequestEventPayload> {
     getInitiatorId(): string {
-        return this.payload.initiator_id.toString();
+        return this.data.initiator_id.toString();
     }
 
     getInitiatorUid(): string {
-        return this.payload.initiator_uid;
+        return this.data.initiator_uid;
     }
 
     getComment(): string {
-        return this.payload.comment;
+        return this.data.comment;
     }
 
     getVia(): string {
-        return this.payload.via;
+        return this.data.via;
     }
 
     async accept() {
@@ -200,25 +204,25 @@ export class FriendRequest extends MilkyEvent<p.FriendRequestEventData> {
  *
  * Group Join Request Event
  */
-export class GroupJoinRequest extends MilkyEvent<p.GroupJoinRequestEventData> {
+export class GroupJoinRequest extends MilkyEvent<p.GroupJoinRequestEventPayload> {
     getGroupId(): string {
-        return this.payload.group_id.toString();
+        return this.data.group_id.toString();
     }
 
     getInitiatorId(): string {
-        return this.payload.initiator_id.toString();
+        return this.data.initiator_id.toString();
     }
 
     getComment(): string {
-        return this.payload.comment;
+        return this.data.comment;
     }
 
     isFiltered(): boolean {
-        return this.payload.is_filtered;
+        return this.data.is_filtered;
     }
 
-    getNoticifactionSeq(): bigint {
-        return this.payload.notification_seq;
+    getNoticifactionSeq(): number {
+        return this.data.notification_seq;
     }
 
     async accept() {
@@ -248,11 +252,11 @@ export class GroupJoinRequest extends MilkyEvent<p.GroupJoinRequestEventData> {
  * Group Invited Join Request Event
  */
 export class GroupInvitedJoinRequest
-    extends MilkyEvent<p.GroupInvitedJoinRequestEventData>
+    extends MilkyEvent<p.GroupInvitedJoinRequestEventPayload>
     implements HasSceneId, HasScene
 {
     getSceneId(): string {
-        return this.payload.group_id.toString();
+        return this.data.group_id.toString();
     }
 
     isPrivate(): boolean {
@@ -264,16 +268,16 @@ export class GroupInvitedJoinRequest
     }
 
     getInitiatorId(): string {
-        return this.payload.initiator_id.toString();
+        return this.data.initiator_id.toString();
     }
 
     getTargetId(): string {
-        return this.payload.target_user_id.toString();
+        return this.data.target_user_id.toString();
     }
 
     async accept() {
         return this.bot.acceptGroupRequest(
-            this.payload.notification_seq,
+            this.data.notification_seq,
             "invited_join_request",
             this.getSceneId(),
             false
@@ -282,7 +286,7 @@ export class GroupInvitedJoinRequest
 
     async reject(reason?: string) {
         return this.bot.rejectGroupRequest(
-            this.payload.notification_seq,
+            this.data.notification_seq,
             "invited_join_request",
             this.getSceneId(),
             {
@@ -297,17 +301,17 @@ export class GroupInvitedJoinRequest
  *
  * Group Invitation Event
  */
-export class GroupInvitation extends MilkyEvent<p.GroupInvitationEventData> {
+export class GroupInvitation extends MilkyEvent<p.GroupInvitationEventPayload> {
     getGroupId(): string {
-        return this.payload.group_id.toString();
+        return this.data.group_id.toString();
     }
 
     getInitiatorId(): string {
-        return this.payload.initiator_id.toString();
+        return this.data.initiator_id.toString();
     }
 
-    getInvitationSeq(): bigint {
-        return this.payload.invitation_seq;
+    getInvitationSeq(): number {
+        return this.data.invitation_seq;
     }
 
     async accept() {
@@ -330,27 +334,27 @@ export class GroupInvitation extends MilkyEvent<p.GroupInvitationEventData> {
  * Friend Nudge Event
  */
 export class FriendNudge
-    extends MilkyEvent<p.FriendNudgeEventData>
+    extends MilkyEvent<p.FriendNudgeEventPayload>
     implements HasOperatorId
 {
     getOperatorId(): string {
-        return this.payload.user_id.toString();
+        return this.data.user_id.toString();
     }
 
     getUserId(): string {
-        return this.payload.user_id.toString();
+        return this.data.user_id.toString();
     }
 
     getAction(): string {
-        return this.payload.display_action;
+        return this.data.display_action;
     }
 
     getActionImage(): string {
-        return this.payload.display_action_img_url;
+        return this.data.display_action_img_url;
     }
 
     getSuffix(): string {
-        return this.payload.display_suffix;
+        return this.data.display_suffix;
     }
 }
 
@@ -359,11 +363,11 @@ export class FriendNudge
  * Friend File Upload Event
  */
 export class FriendFileUpload
-    extends MilkyEvent<p.FriendFileUploadEventData>
+    extends MilkyEvent<p.FriendFileUploadEventPayload>
     implements HasOperatorId, HasScene, HasSceneId
 {
     getOperatorId(): string {
-        return this.payload.user_id.toString();
+        return this.data.user_id.toString();
     }
 
     isPrivate(): boolean {
@@ -375,27 +379,27 @@ export class FriendFileUpload
     }
 
     getSceneId(): string {
-        return this.payload.user_id.toString();
+        return this.data.user_id.toString();
     }
 
     getUserId(): string {
-        return this.payload.user_id.toString();
+        return this.data.user_id.toString();
     }
 
     getFileId(): string {
-        return this.payload.file_id;
+        return this.data.file_id;
     }
 
     getFileName(): string {
-        return this.payload.file_name;
+        return this.data.file_name;
     }
 
-    getFileSize(): bigint {
-        return this.payload.file_size;
+    getFileSize(): number {
+        return this.data.file_size;
     }
 
     getFileHash(): string {
-        return this.payload.file_hash;
+        return this.data.file_hash;
     }
 
     async save(): Promise<boolean> {
@@ -409,11 +413,11 @@ export class FriendFileUpload
  * Group Admin Change Event
  */
 export class GroupAdminChange
-    extends MilkyEvent<p.GroupAdminChangeEventData>
+    extends MilkyEvent<p.GroupAdminChangeEventPayload>
     implements HasSceneId, HasScene, HasReceiverId
 {
     getSceneId(): string {
-        return this.payload.group_id.toString();
+        return this.data.group_id.toString();
     }
 
     isPrivate(): boolean {
@@ -425,11 +429,11 @@ export class GroupAdminChange
     }
 
     getReceiverId(): string {
-        return this.payload.user_id.toString();
+        return this.data.user_id.toString();
     }
 
     isSet(): boolean {
-        return this.payload.is_set;
+        return this.data.is_set;
     }
 }
 
@@ -438,19 +442,19 @@ export class GroupAdminChange
  * Group Essence Message Change Event
  */
 export class GroupEssenceMessageChange
-    extends MilkyEvent<p.GroupEssenceMessageChangeEventData>
+    extends MilkyEvent<p.GroupEssenceMessageChangeEventPayload>
     implements HasSceneId, HasScene
 {
-    getMessageSeq(): bigint {
-        return this.payload.message_seq;
+    getMessageSeq(): number {
+        return this.data.message_seq;
     }
 
     getGroupId(): string {
-        return this.payload.group_id.toString();
+        return this.data.group_id.toString();
     }
 
     isSet(): boolean {
-        return this.payload.is_set;
+        return this.data.is_set;
     }
 
     isPrivate(): boolean {
@@ -462,7 +466,7 @@ export class GroupEssenceMessageChange
     }
 
     getSceneId(): string {
-        return this.payload.group_id.toString();
+        return this.data.group_id.toString();
     }
 }
 
@@ -471,11 +475,11 @@ export class GroupEssenceMessageChange
  * Group Member Increase Event
  */
 export class GroupMemberIncrease
-    extends MilkyEvent<p.GroupMemberIncreaseEventData>
+    extends MilkyEvent<p.GroupMemberIncreaseEventPayload>
     implements HasSceneId, HasScene, HasReceiverId, HasOperatorId
 {
     getSceneId(): string {
-        return this.payload.group_id.toString();
+        return this.data.group_id.toString();
     }
 
     isPrivate(): boolean {
@@ -487,15 +491,15 @@ export class GroupMemberIncrease
     }
 
     getReceiverId(): string {
-        return this.payload.user_id.toString();
+        return this.data.user_id.toString();
     }
 
     getOperatorId(): string {
-        return this.payload.operator_id?.toString() || "";
+        return this.data.operator_id?.toString() || "";
     }
 
     getInvitorId(): string {
-        return this.payload.invitor_id?.toString() || "";
+        return this.data.invitor_id?.toString() || "";
     }
 }
 
@@ -504,11 +508,11 @@ export class GroupMemberIncrease
  * Group Member Decrease Event
  */
 export class GroupMemberDecrease
-    extends MilkyEvent<p.GroupMemberDecreaseEventData>
+    extends MilkyEvent<p.GroupMemberDecreaseEventPayload>
     implements HasSceneId, HasScene, HasReceiverId, HasOperatorId
 {
     getSceneId(): string {
-        return this.payload.group_id.toString();
+        return this.data.group_id.toString();
     }
 
     isPrivate(): boolean {
@@ -520,11 +524,11 @@ export class GroupMemberDecrease
     }
 
     getReceiverId(): string {
-        return this.payload.user_id.toString();
+        return this.data.user_id.toString();
     }
 
     getOperatorId(): string {
-        return this.payload.operator_id?.toString() || "";
+        return this.data.operator_id?.toString() || "";
     }
 }
 
@@ -533,11 +537,11 @@ export class GroupMemberDecrease
  * Group Name Change Event
  */
 export class GroupNameChange
-    extends MilkyEvent<p.GroupNameChangeEventData>
+    extends MilkyEvent<p.GroupNameChangeEventPayload>
     implements HasSceneId, HasScene, HasOperatorId
 {
     getSceneId(): string {
-        return this.payload.group_id.toString();
+        return this.data.group_id.toString();
     }
 
     isPrivate(): boolean {
@@ -549,11 +553,11 @@ export class GroupNameChange
     }
 
     getOperatorId(): string {
-        return this.payload.operator_id.toString();
+        return this.data.operator_id.toString();
     }
 
     getNewName(): string {
-        return this.payload.new_group_name;
+        return this.data.new_group_name;
     }
 }
 
@@ -562,11 +566,11 @@ export class GroupNameChange
  * Group Message Reaction Event
  */
 export class GroupMessageReaction
-    extends MilkyEvent<p.GroupMessageReactionEventData>
+    extends MilkyEvent<p.GroupMessageReactionEventPayload>
     implements HasSceneId, HasScene, HasOperatorId
 {
     getSceneId(): string {
-        return this.payload.group_id.toString();
+        return this.data.group_id.toString();
     }
 
     isPrivate(): boolean {
@@ -578,23 +582,23 @@ export class GroupMessageReaction
     }
 
     getOperatorId(): string {
-        return this.payload.user_id.toString();
+        return this.data.user_id.toString();
     }
 
     getUserId(): string {
-        return this.payload.user_id.toString();
+        return this.data.user_id.toString();
     }
 
-    getMessageSeq(): bigint {
-        return this.payload.message_seq;
+    getMessageSeq(): number {
+        return this.data.message_seq;
     }
 
     getFaceId(): string {
-        return this.payload.face_id;
+        return this.data.face_id;
     }
 
     isAdd(): boolean {
-        return this.payload.is_add;
+        return this.data.is_add;
     }
 }
 
@@ -603,11 +607,11 @@ export class GroupMessageReaction
  * Group Mute Event
  */
 export class GroupMute
-    extends MilkyEvent<p.GroupMuteEventData>
+    extends MilkyEvent<p.GroupMuteEventPayload>
     implements HasSceneId, HasScene, HasOperatorId, HasReceiverId
 {
     getSceneId(): string {
-        return this.payload.group_id.toString();
+        return this.data.group_id.toString();
     }
 
     isPrivate(): boolean {
@@ -619,27 +623,27 @@ export class GroupMute
     }
 
     getOperatorId(): string {
-        return this.payload.operator_id.toString();
+        return this.data.operator_id.toString();
     }
 
     getReceiverId(): string {
-        return this.payload.user_id.toString();
+        return this.data.user_id.toString();
     }
 
     getUserId(): string {
-        return this.payload.user_id.toString();
+        return this.data.user_id.toString();
     }
 
     getGroupId(): string {
-        return this.payload.group_id.toString();
+        return this.data.group_id.toString();
     }
 
     getDurationSeconds(): number {
-        return this.payload.duration;
+        return this.data.duration;
     }
 
     getDurationMilliseconds(): number {
-        return this.payload.duration * 1000;
+        return this.data.duration * 1000;
     }
 }
 
@@ -648,11 +652,11 @@ export class GroupMute
  * Group Whole Mute Event
  */
 export class GroupWholeMute
-    extends MilkyEvent<p.GroupWholeMuteEventData>
+    extends MilkyEvent<p.GroupWholeMuteEventPayload>
     implements HasSceneId, HasScene, HasOperatorId
 {
     getSceneId(): string {
-        return this.payload.group_id.toString();
+        return this.data.group_id.toString();
     }
 
     isPrivate(): boolean {
@@ -664,15 +668,15 @@ export class GroupWholeMute
     }
 
     getOperatorId(): string {
-        return this.payload.operator_id.toString();
+        return this.data.operator_id.toString();
     }
 
     getGroupId(): string {
-        return this.payload.group_id.toString();
+        return this.data.group_id.toString();
     }
 
     isMute(): boolean {
-        return this.payload.is_mute;
+        return this.data.is_mute;
     }
 }
 
@@ -681,11 +685,11 @@ export class GroupWholeMute
  * Group Nudge Event
  */
 export class GroupNudge
-    extends MilkyEvent<p.GroupNudgeEventData>
+    extends MilkyEvent<p.GroupNudgeEventPayload>
     implements HasSceneId, HasScene, HasReceiverId, HasOperatorId
 {
     getSceneId(): string {
-        return this.payload.group_id.toString();
+        return this.data.group_id.toString();
     }
 
     isPrivate(): boolean {
@@ -697,31 +701,31 @@ export class GroupNudge
     }
 
     getOperatorId(): string {
-        return this.payload.sender_id.toString();
+        return this.data.sender_id.toString();
     }
 
     getReceiverId(): string {
-        return this.payload.receiver_id.toString();
+        return this.data.receiver_id.toString();
     }
 
     getGroupId(): string {
-        return this.payload.group_id.toString();
+        return this.data.group_id.toString();
     }
 
     getSenderId(): string {
-        return this.payload.sender_id.toString();
+        return this.data.sender_id.toString();
     }
 
     getAction(): string {
-        return this.payload.display_action;
+        return this.data.display_action;
     }
 
     getActionImage(): string {
-        return this.payload.display_action_img_url;
+        return this.data.display_action_img_url;
     }
 
     getSuffix(): string {
-        return this.payload.display_suffix;
+        return this.data.display_suffix;
     }
 }
 
@@ -730,11 +734,11 @@ export class GroupNudge
  * Group File Upload Event
  */
 export class GroupFileUpload
-    extends MilkyEvent<p.GroupFileUploadEventData>
+    extends MilkyEvent<p.GroupFileUploadEventPayload>
     implements HasSceneId, HasScene, HasOperatorId
 {
     getSceneId(): string {
-        return this.payload.group_id.toString();
+        return this.data.group_id.toString();
     }
 
     isPrivate(): boolean {
@@ -746,27 +750,27 @@ export class GroupFileUpload
     }
 
     getOperatorId(): string {
-        return this.payload.user_id.toString();
+        return this.data.user_id.toString();
     }
 
     getUserId(): string {
-        return this.payload.user_id.toString();
+        return this.data.user_id.toString();
     }
 
     getGroupId(): string {
-        return this.payload.group_id.toString();
+        return this.data.group_id.toString();
     }
 
     getFileId(): string {
-        return this.payload.file_id;
+        return this.data.file_id;
     }
 
     getFileName(): string {
-        return this.payload.file_name;
+        return this.data.file_name;
     }
 
-    getFileSize(): bigint {
-        return this.payload.file_size;
+    getFileSize(): number {
+        return this.data.file_size;
     }
 
     async save(): Promise<boolean> {
@@ -779,52 +783,47 @@ export class GroupFileUpload
  *
  * Create corresponding event instance based on the original payload
  */
-export function createEvent(payload: any, bot: MilkyBot) {
-    // 通过 zod 对 payload 进行类型验证
-    const result = p.MilkyEventPayloadSchema.safeParse(payload);
-    if (!result.success) {
-        return undefined;
-    }
+export function createEvent(payload: p.MilkyEventPayload, bot: MilkyBot) {
     // 根据事件类型创建对应的事件实例
-    switch (result.data.event_type) {
+    switch (payload.event_type) {
         case "bot_offline":
-            return new BotOffline(result.data, bot);
+            return new BotOffline(payload, bot);
         case "message_receive":
-            return new MessageReceive(result.data, bot);
+            return new MessageReceive(payload, bot);
         case "message_recall":
-            return new MessageRecall(result.data, bot);
+            return new MessageRecall(payload, bot);
         case "friend_request":
-            return new FriendRequest(result.data, bot);
+            return new FriendRequest(payload, bot);
         case "group_join_request":
-            return new GroupJoinRequest(result.data, bot);
+            return new GroupJoinRequest(payload, bot);
         case "group_invited_join_request":
-            return new GroupInvitedJoinRequest(result.data, bot);
+            return new GroupInvitedJoinRequest(payload, bot);
         case "group_invitation":
-            return new GroupInvitation(result.data, bot);
+            return new GroupInvitation(payload, bot);
         case "friend_nudge":
-            return new FriendNudge(result.data, bot);
+            return new FriendNudge(payload, bot);
         case "friend_file_upload":
-            return new FriendFileUpload(result.data, bot);
+            return new FriendFileUpload(payload, bot);
         case "group_admin_change":
-            return new GroupAdminChange(result.data, bot);
+            return new GroupAdminChange(payload, bot);
         case "group_essence_message_change":
-            return new GroupEssenceMessageChange(result.data, bot);
+            return new GroupEssenceMessageChange(payload, bot);
         case "group_member_increase":
-            return new GroupMemberIncrease(result.data, bot);
+            return new GroupMemberIncrease(payload, bot);
         case "group_member_decrease":
-            return new GroupMemberDecrease(result.data, bot);
+            return new GroupMemberDecrease(payload, bot);
         case "group_name_change":
-            return new GroupNameChange(result.data, bot);
+            return new GroupNameChange(payload, bot);
         case "group_message_reaction":
-            return new GroupMessageReaction(result.data, bot);
+            return new GroupMessageReaction(payload, bot);
         case "group_mute":
-            return new GroupMute(result.data, bot);
+            return new GroupMute(payload, bot);
         case "group_whole_mute":
-            return new GroupWholeMute(result.data, bot);
+            return new GroupWholeMute(payload, bot);
         case "group_nudge":
-            return new GroupNudge(result.data, bot);
+            return new GroupNudge(payload, bot);
         case "group_file_upload":
-            return new GroupFileUpload(result.data, bot);
+            return new GroupFileUpload(payload, bot);
         default:
             return undefined;
     }

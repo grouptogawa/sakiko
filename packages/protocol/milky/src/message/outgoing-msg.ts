@@ -53,12 +53,12 @@ export class MilkyOutgoingMessage
                     }
                     return {
                         type: "mention",
-                        data: { user_id: BigInt(seg.data.userId) }
+                        data: { user_id: Number(seg.data.userId) }
                     } as outgoing.Mention;
                 case "quote":
                     return {
                         type: "reply",
-                        data: { message_seq: BigInt(seg.data.msgId) }
+                        data: { message_seq: Number(seg.data.msgId) }
                     } as outgoing.Reply;
                 case "other":
                     // 尝试还原原始消息段
@@ -89,7 +89,7 @@ export class MilkyOutgoingMessage
     }
 
     mentioned(userId: string | number | bigint, allowAll: boolean): boolean {
-        const uid = BigInt(userId);
+        const uid = Number(userId);
         return this.some((seg) => {
             if (seg.type !== "mention" && seg.type !== "mention_all")
                 return false;
@@ -105,7 +105,7 @@ export class MilkyOutgoingMessage
     }
 
     quoted(msgId: string | bigint): boolean {
-        const id = BigInt(msgId);
+        const id = Number(msgId);
         return this.some((seg) => {
             if (seg.type !== "reply") return false;
             return seg.data.message_seq === id;
@@ -123,7 +123,7 @@ export class MilkyOutgoingMessage
     mention(userId: string | number | bigint): MilkyOutgoingMessage {
         return this.update({
             type: "mention",
-            data: { user_id: BigInt(userId) }
+            data: { user_id: Number(userId) }
         } as outgoing.Mention);
     }
 
@@ -137,7 +137,7 @@ export class MilkyOutgoingMessage
     reply(messageSeq: string | number | bigint): MilkyOutgoingMessage {
         return this.update({
             type: "reply",
-            data: { message_seq: BigInt(messageSeq) }
+            data: { message_seq: Number(messageSeq) }
         } as outgoing.Reply);
     }
 
