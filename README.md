@@ -1,95 +1,127 @@
-# Sakiko
+<!--- README.md --->
 
-TypeScript 聊天机器人框架 / 事件处理框架
+<div align="center">
+    <img src="./avatar.png" alt="sakiko" width="200"/>
+    <h1>Sakiko</h1>
+    <img src="https://img.shields.io/badge/typescript-5.0+-blue?logo=typescript" alt="TS"/>
+    <img src="https://img.shields.io/badge/Node.js-24.12+-green?logo=nodedotjs" alt="Node.js"/>
+    <img src="https://img.shields.io/badge/Bun-1.3.2+-orange?logo=bun" alt="Bun"/>
+    <a href="https://togawa-dev.github.io/docs/"><img src="https://img.shields.io/badge/docs-Github_Pages-purple?logo=docusaurus" alt="Docs"/></a>
+    <p></p>
+    <p>A scalable cross-platform chatbot framework, simple yet stupidly powerful.</p>
+    <p>一个可扩展、跨平台的聊天机器人框架，简洁而不简单。</p>
+</div>
 
-跨平台、可拓展、API 简单易用，最小只需要一个 `index.ts` 即可部署
+> The Project Name `Sakiko` comes from the band _Ave Mujica_'s keyboardist **_豊川（とがわ） 祥子（さきこ）_** (Togawa **Sakiko** a.k.a _Oblivionis_) in the cross-media project _BanG Dream!_<br>
 
-让开发聊天机器人简单如喝水
+## 快速开始
 
-## 开发状态
+请参考 [文档](https://togawa-dev.github.io/docs/) 以获取最新的快速开始指南。
 
-目前 sakiko 框架本身的核心功能均已完成，但是在第一个正式版 Release 之前仍有可能出现大规模的 API 变动
-
-简单来讲，现在的状态非常不是很适合拿来用（
-
-开发组（虽然就一个活人）正在努力填充周边生态并改善框架的各种设计......
-
-目前整个 sakiko project 的完成进度如下：
-
-- sakiko | 聊天机器人框架 ✅
-- umiri | 基于类型系统的本地事件总线实现 ✅
-- sakiko-adapter-onebot-v11 | sakiko 的 onebot v11 协议适配器实现 ✅
-- togawa-docs | sakiko project 的在线文档 / 教程站 ⚠️ 编写中
-- mutsumi | 基于模式匹配和类型验证的高级命令匹配/解析库 ⚠️ 开发中
-- uika | sakiko 的可选高级功能扩展 ❌ 计划开发
-- nyamu | 基于 satori 的图像模板渲染工具 ❌ 计划开发
-
-## 使用
-
-sakiko 支持 Node.js / Bun （理论上支持 Deno 运行时环境，但是没有进行测试）
-
-### 安装
+### 安装 / Installation
 
 ```bash
-# NPM
-npm install @togawadev/sakiko
-
-# PNPM
-pnpm add @togawadev/sakiko
-
-# Bun
-bun add @togawadev/sakiko
+npm i @togawa-dev/sakiko
 ```
 
-### 快速开始
+### 最小示例 / Minimal Example
 
 ```typescript
-import { sakiko } from "@togawadev/sakiko";
-import { OB11Adapter } from "@togawadev/sakiko-adapter-onebot"; // 导入 Onebot V11 适配器作为示例
+import { Sakiko } from "@togawa-dev/sakiko";
+import { fullMatch } from "@togawa-dev/uika/filter";
 
-sakiko.withConfig({
-    /* 可以通过withConfig方法来向sakiko实例注入配置项 */
-    /* ... */
-});
+const sakiko = new Sakiko();
 
-sakiko.init();
+sakiko
+    .match(ExampleEvent)
+    .filter(fullMatch("foobar"))
+    .filter((ctx) => [mergeContext(ctx, { foo: "baz" }), true])
+    .handle(async (ctx) => {
+        ctx.bot.send(ctx.event, `Hello, World! And you merged ${ctx.foo}`);
+    })
+    .commit();
 
-// 可以通过 install 方法来安装插件/适配器
+sakiko.launch();
 
-await sakiko.install(OB11Adapter);
-
-await sakiko.run();
+// 其实你直接 launch() 也行，总之是跑起来了，虽然没什么用
+// well you can just launch(), as long as it runs, even though it has no usefulness at all
 ```
 
-### 消息响应
+## 仓库结构 / Repository Structure
 
-```typescript
-import { sakiko, onStartWith } from "@togawadev/sakiko";
-import {
-    GroupMessageEvent,
-    PrivateMessageEvent,
-    message
-} from "@togawadev/sakiko-adapter-onebot-v11";
+这个工作区仓库负责维护以下的 npm 包：
 
-const exampleMatcher = onStartsWith("foo")
-    .ofEvent(GroupMessageEvent, PrivateMessageEvent)
-    .priority(0) // 事件处理器的优先级，数字越大则处理越早
-    .handle(async (bot, event, ctx) => {
-        // TypeScript 会自动根据匹配器和你传入的事件类型推测处理器参数的类型
-        // 所以你可以在这里享用完整的类型提示能力
-        bot.sendMessage(event, message.text("foobar"));
-        return true;
-    });
+This workspace repository maintains the following npm packages:
 
-sakiko.match(exampleMatcher);
+### `package/core` 框架核心包 / Core framework package
 
-const anotherMatcher = onEndsWith(["foo", "bar"])
-    .ofEvent(GroupMessageEvent)
-    .block() // 启用对后续优先级上的处理器的阻塞
-    .handle(async (bot, event, ctx) => {
-        bot.sendMessage(event, message.text("foobar"));
-        return false; // 启用 block 时，如果处理器函数返回了false，那么将会阻止后续优先级的处理
-    });
+| 包名 / Package       | 路径 / Path            | 备注/ Notes                                               |
+| -------------------- | ---------------------- | --------------------------------------------------------- |
+| `@togawa-dev/sakiko` | `packages/core/sakiko` | 框架核心实现 / Core framework implementation              |
+| `@togawa-dev/umiri`  | `packages/core/umiri`  | 本地事件总线实现 / Local event bus implementation         |
+| `@togawa-dev/uika`   | `packages/core/uika`   | 可选的高级功能扩展 / Optional advanced feature extensions |
+| `@togawa-dev/utils`  | `packages/core/utils`  | 内部工具库 / General utility library                      |
 
-sakiko.match(anotherMatcher);
-```
+### `package/protocol` 协议数据结构包 / Protocol data structure packages
+
+| 包名 / Package               | 路径 / Path               | 备注/ Notes                           |
+| ---------------------------- | ------------------------- | ------------------------------------- |
+| `@togawa-dev/protocol-milky` | `packages/protocol/milky` | milky 协议实现 / milky protocol impl. |
+
+### `package/adapter` 适配器实现包 / Adapter implementation packages
+
+| 包名 / Package              | 路径 / Path              | 备注/ Notes                            |
+| --------------------------- | ------------------------ | -------------------------------------- |
+| `@togawa-dev/adapter-milky` | `packages/adapter/milky` | milky 适配器实现 / milky adapter impl. |
+
+### `package/plugin` 插件实现包 / Plugin implementation packages
+
+| 包名 / Package            | 路径 / Path            | 备注/ Notes                            |
+| ------------------------- | ---------------------- | -------------------------------------- |
+| `@togawa-dev/plugin-echo` | `packages/plugin/echo` | echo 插件 / echo plugin implementation |
+
+### 特性 / Features
+
+### 🚀 开发者友好 / Developer Friendly
+
+Sakiko 提供简洁且语义清晰的 API，将复杂能力封装在直观的方法中，让开发者专注于业务本身，而不是框架细节。
+框架坚持少依赖、轻量化设计，避免臃肿的依赖树，保持高效与可维护性。
+
+借助 TypeScript 强大的类型推导与类型组合能力，Sakiko 在编译期提供准确的类型提示，减少运行时错误，并确保类型在复杂处理流程中始终正确传递。
+
+Sakiko offers a minimal and expressive API, hiding complexity behind simple abstractions so developers can focus on business logic instead of framework internals.
+With a lightweight, low-dependency philosophy, it stays fast and easy to maintain.
+
+Powered by TypeScript’s advanced type inference and composition, Sakiko delivers precise type hints at compile time, reducing runtime errors and ensuring type safety throughout complex pipelines.
+
+### ✍️ 脚本化 / Scripting
+
+Sakiko 不依赖脚手架工具。
+从配置、插件安装到应用启动和事件处理，全部可以在一个 index.ts 文件中完成。
+
+你既能享受 TypeScript 带来的强类型提示，又能完全掌控项目结构——代码写在哪、怎么组织，完全由你决定。
+
+Sakiko avoids scaffolding tools.
+Configuration, plugin setup, app startup, and event handling can all live in a single index.ts.
+
+You get strong TypeScript typing while retaining full control over your project structure, with no imposed conventions.
+
+### 🧩 可扩展、可插拔 / Scalable & Pluggable
+
+Sakiko 通过灵活的插件系统扩展功能。
+插件既可以只处理一个事件，也可以注入完整的功能模块，并支持无副作用的动态加载与卸载。
+
+你可以按需安装插件，或用插件系统来组织和拆分自己的代码。
+
+Sakiko features a flexible plugin system for extending functionality.
+Plugins range from simple event handlers to full-feature modules, and can be dynamically added or removed without side effects.
+
+Install only what you need, or use plugins as a clean way to structure your codebase.
+
+## 开发进度 / Development Progress
+
+距离下个次要版本的发布还有这些要做的东西：
+
+- mutsumi 命令解析器以及对应的uika子包的开发
+- onebot v11 的协议数据结构定义&适配器实现
+- 继续优化框架中中间件的设计
